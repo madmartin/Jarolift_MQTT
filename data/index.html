@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jarolift Wifi Dongle</title>
+  
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="scripts.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
+  </head>
+  <body>  
+    <!-- Main layout -->
+    <div class="siimple-layout">
+      <!-- Navbar -->
+      <div class="siimple-navbar siimple-navbar--navy siimple-navbar--medium">
+        <!-- Right menu -->
+        <div class="siimple-layout--left">
+          <a class="siimple-navbar-link" href="/">Home</a>
+          <a class="siimple-navbar-link" href="/system.html">System</a>
+          <a class="siimple-navbar-link" href="/shutter.html">Shutter</a>
+          <a class="siimple-navbar-link" href="/log.html">Log</a>
+        </div>
+      </div>
+    
+      <!-- Content -->
+      <div class="siimple-content siimple-content--medium">
+        <div class="siimple-box" align="center">
+          <div class="siimple-box-subtitle">Jarolift Wifi Dongle - Welcome</div>
+        </div>
+
+        <br>
+        <h3>General</h3>
+        This version is a fork of the "Jarolift TDEF in FHEM" project described in <a class="siimple-link" target="_blank" href="http://www.bastelbudenbuben.de/2017/04/25/protokollanalyse-von-jarolift-tdef-motoren/">here</a>.
+        Other then the origional version, this fork is working with Message Queuing Telemetry Transport (MQTT) procotol to be able to communicate with several different Smart Home systems such OpenHab or FHEM.
+        <br><br>
+        <h3>MQTT telegram structure</h3>
+        This version is working with MQTT telegrams with the following syntax. Each of the 16 shutter channels can be individually controlled via a telegram. The commands "UP", "DOWN", "STOP", "SHADE", "SETSHADE" as well as "LEARN" are supported right now.
+        <p>
+          <h4>Telegrams to send commands to the Wifi Dongle:</h4>
+          <pre class="siimple-pre">
+  cmd/jarolift/shutter/{0-15}:UP
+  cmd/jarolift/shutter/{0-15}:DOWN
+  cmd/jarolift/shutter/{0-15}:STOP
+  cmd/jarolift/shutter/{0-15}:SHADE
+  cmd/jarolift/shutter/{0-15}:SETSHADE
+  cmd/jarolift/shutter/{0-15}:LEARN</pre>
+        </p>
+        <p>
+          <h4>Telegrams to get the status of each shutter:</h4>
+          <pre class="siimple-pre">
+  stat/jarolift/shutter/{0-15}:state:default</pre>
+        </p>
+        <br>
+        <h3>Integration into openHAB</h3>
+        The integration in Smart Home system such openHAB is actually pretty easy. Just install a MQTT broker bindling and add the following into the item configuration:
+        <pre class="siimple-pre">
+  Rollershutter shutter1 "shutter1" {mqtt=">[mosquitto:cmd/jarolift/shutter/0:command:*:default], <[mosquitto:stat/jarolift/shutter/0:state:default]"}
+  Rollershutter shutter2 "shutter2" {mqtt=">[mosquitto:cmd/jarolift/shutter/1:command:*:default], <[mosquitto:stat/jarolift/shutter/1:state:default]"}
+  Rollershutter shutter3 "shutter3" {mqtt=">[mosquitto:cmd/jarolift/shutter/2:command:*:default], <[mosquitto:stat/jarolift/shutter/2:state:default]"}
+        </pre>
+
+
+      </div>
+    </div>
+  </body>

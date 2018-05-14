@@ -1,0 +1,174 @@
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jarolift Wifi Dongle</title>
+  
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="scripts.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
+  
+    <script type="text/javascript">
+      window.onload=function(){
+        getConfig()
+      }
+    </script>
+  </head>
+  <body>  
+    <!-- Main layout -->
+    <div class="siimple-layout">
+      <!-- Navbar -->
+      <div class="siimple-navbar siimple-navbar--navy siimple-navbar--medium">
+        <!-- Right menu -->
+        <div class="siimple-layout--left">
+		  <a class="siimple-navbar-link" href="/">Home</a>
+          <a class="siimple-navbar-link" href="/system.html">System</a>
+          <a class="siimple-navbar-link" href="/shutter.html">Shutter</a>
+          <a class="siimple-navbar-link" href="/log.html">Log</a>
+        </div>
+      </div>
+    
+      <!-- Content -->
+      <div class="siimple-content siimple-content--medium">
+        <!-- Example box -->
+        <div class="siimple-box" align="center">
+          <div class="siimple-box-subtitle">Wifi Dongle - Configuration</div>
+        </div>
+        <div id="spinner" class="siimple-spinner siimple-spinner--navy siimple-spinner--large"></div>
+        <!-- Grid row -->
+        <div class="siimple-grid-row" id="config" style="display:none;">
+          <div class="siimple-grid-col siimple-grid-col--12">
+            <!-- Form content -->
+            <form id="configForm">
+              <div class="siimple-form">
+                <div class="siimple-form-title">Network settings</div>
+                <div class="siimple-form-detail">Configure general network settings.</div>
+                <!-- SSID group -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">wireless SSID</div>
+                  <input type="text" id="ssid" name="ssid" maxlength=25 class="siimple-input siimple-input--fluid" placeholder="Your SSID">
+                </div>
+                <!-- password group -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">preshared key</div>
+                  <input type="password" id="password" name="password" maxlength=25 class="siimple-input siimple-input--fluid" placeholder="Your wireless password">
+                </div>
+                <!-- enable DHCP checkbox -->
+                <div class="siimple-form-field">
+                  <label class="siimple-label">use DHCP:</label>
+                  <div class="siimple-checkbox">
+                    <input type="checkbox" id="dhcp" name="dhcp" checked>
+                    <label for="dhcp"></label>
+                  </div>
+                </div>
+                <!-- ip address group -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">ip address</div>
+                  <div class="siimple-grid">
+                    <div class="siimple-grid-row">
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="ip_0" name="ip_0" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="ip_1" name="ip_1" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="ip_2" name="ip_2" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="ip_3" name="ip_3" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- netmask group -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">network mask</div>
+                  <div class="siimple-grid">
+                    <div class="siimple-grid-row">
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="nm_0" name="nm_0" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="nm_1" name="nm_1" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="nm_2" name="nm_2" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="nm_3" name="nm_3" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                    </div>
+                  </div>
+                </div>
+                <!-- gateway -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">gateway</div>
+                  <div class="siimple-grid">
+                    <div class="siimple-grid-row">
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="gw_0" name="gw_0" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="gw_1" name="gw_1" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="gw_2" name="gw_2" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="gw_3" name="gw_3" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                    </div>
+                  </div>
+                </div>
+    
+                <div class="siimple-form-title">MQTT configuration</div>
+                <div class="siimple-form-detail">Configure MQTT spesific settings.</div>
+                <!-- MQTT broker IP -->
+                <div class="siimple-form-field">
+                    <div class="siimple-form-field-label">broker address</div>
+                    <div class="siimple-grid">
+                      <div class="siimple-grid-row">
+                        <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="mqtt_broker_addr_0" name="mqtt_broker_addr_0" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                        <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="mqtt_broker_addr_1" name="mqtt_broker_addr_1" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                        <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="mqtt_broker_addr_2" name="mqtt_broker_addr_2" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                        <div class="siimple-grid-col siimple-grid-col--3"><input type="text" id="mqtt_broker_addr_3" name="mqtt_broker_addr_3" maxlength=3 class="siimple-input siimple-input--fluid"></div>
+                      </div>
+                    </div>
+                  </div>
+                <!-- broker port -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">broker port</div>
+                  <input type="text" id="mqtt_broker_port" name="mqtt_broker_port" maxlength=4 class="siimple-input siimple-input--fluid">
+                </div>
+                <!-- broker username -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">username (optional)</div>
+                  <input type="text" id="mqtt_broker_username" name="mqtt_broker_username" maxlength=25 class="siimple-input siimple-input--fluid">
+                </div>
+                <!-- broker password -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">password (optional)</div>
+                  <input type="text" id="mqtt_broker_password" name="mqtt_broker_password" maxlength=25 class="siimple-input siimple-input--fluid">
+                </div>
+                <!-- broker client Id -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">client id</div>
+                  <input type="text" id="mqtt_broker_client_id" n<me="mqtt_broker_client_id" maxlength=25 class="siimple-input siimple-input--fluid">
+                </div>
+    
+                <div class="siimple-form-title">Jarolift settings</div>
+                <div class="siimple-form-detail">Configure Jarolift spesific settings.</div>
+                <!-- master MSB -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">master MSB</div>
+                  <input type="text" id="master_msb" name="master_msb" maxlength=10 class="siimple-input siimple-input--fluid">
+                </div>
+                <!-- master LSB -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">master LSB</div>
+                  <input type="text" id="master_lsb" name="master_lsb" maxlength=10 class="siimple-input siimple-input--fluid">
+                </div>
+                <!--  Learn mode checkbox -->
+                <div class="siimple-form-field">
+                  <label class="siimple-label">new learn mode:</label>
+                  <div class="siimple-checkbox">
+                    <input type="checkbox" id="learn_mode" name="learn_mode" checked>
+                    <label for="learn_mode"></label>
+                  </div>
+                </div>
+                <!-- serial number -->
+                <div class="siimple-form-field">
+                    <div class="siimple-form-field-label">serial number</div>
+                    <input type="text" id="serial" name="serial" maxlength=8 class="siimple-input siimple-input--fluid">
+                  </div>
+				
+                <!-- Send button -->
+                <div class="siimple-form-field">
+                  <input type='button' class='siimple-btn siimple-btn--navy' value="save" onclick="writeConfig('save')">
+                  <input type='submit' class='siimple-btn siimple-btn--grey' value='save and generate serials' onclick="writeConfig('save and generate serials')">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>

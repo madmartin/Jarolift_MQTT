@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jarolift Wifi Dongle</title>
+  
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="scripts.js"></script>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png">
+	<script type="text/javascript">
+		window.onload=function(){
+			getChannelName()
+		}
+	</script>
+  </head>
+  <body>  
+    <!-- Main layout -->
+    <div class="siimple-layout">
+      <!-- Navbar -->
+      <div class="siimple-navbar siimple-navbar--navy siimple-navbar--medium">
+        <!-- Right menu -->
+        <div class="siimple-layout--left">
+          <a class="siimple-navbar-link" href="/">Home</a>
+          <a class="siimple-navbar-link" href="/system.html">System</a>
+          <a class="siimple-navbar-link" href="/shutter.html">Shutter</a>
+          <a class="siimple-navbar-link" href="/log.html">Log</a>
+        </div>
+      </div>
+    
+      <!-- Content -->
+      <div class="siimple-content siimple-content--medium" id="container">
+        <div class="siimple-box" align="center">
+          <div class="siimple-box-subtitle">Wifi Dongle - Shutter Control</div>
+          <div class="siimple-box-details">
+            Each shutter channel has to be configured before it will be displayed in the list below. 
+            Please click <a href="#" class="siimple-link" onclick="showAllShutterChannel();">configure shutter</a> in order to name each shutter channel.</div>
+        </div>
+        <div id="spinner" class="siimple-spinner siimple-spinner--navy siimple-spinner--large"></div>
+      </div>
+    </div>
+  </body>
+ 
