@@ -1,13 +1,24 @@
-/* V0.4
-  Controlling Jarolift TDEF 433MHZ radio shutters via ESP8266 and CC1101 Transceiver Module in asynchronous mode.
-  Experimental version.Commands will be send via UDP packet. Use at your own risk. For private/educational use. (Keeloq algorithm licensed only to TI Microcontrollers)
-  Provides also reception of Jarolift telegrams and status update for fhem  together with 98_jarolift.pm.
-  Reception is based on simple pulse time measurement.
-  Also additional cc1101 register optimization may be required for better reception.
+/*  Controlling Jarolift TDEF 433MHZ radio shutters via ESP8266 and CC1101 Transceiver Module in asynchronous mode.
+    Copyright (C) 2017-2018 Steffen Hille et al.
 
-  Connect via Terminal program, press "m" to enter menue.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 
+// Changelog: see CHANGES.md
+
+/* 
   Kanal  S/N           DiscGroup_8-16             DiscGroup_1-8     SN(last two digits)
   0       0            0000 0000                   0000 0001           0000 0000
   1       1            0000 0000                   0000 0010           0000 0001
@@ -25,47 +36,9 @@
   13      13           0010 0000                   0000 0000           0000 0111
   14      14           0100 0000                   0000 0000           0000 0111
   15      15           1000 0000                   0000 0000           0000 0111
-
-  Connection:
-
-  ESP<->CC1101
-  D8  - CSN
-  D2  - GDO0 (perhaps 1Kohm to GND)
-  D1  - GDO2
-  D6  - SO(GDO1)
-  D5  - SCLK
-  D7  - SI
-  GND - GND
-  VCC - VCC
-
-  Written by Steffen Hille in Nov, 2017
-
-  changelog:
-
-  20/07/17 v0.1
-    added reception of jarolift remotes and fhem status update
-
-  28/07/17 v0.2
-    Modified rx/tx switch for not getting stuck (line 1182/1192)
-
-  19/08/17 v0.3
-   Added WiFi reconnect routine. (THX to Markus)
-
-  30/08/17 v0.4
-  Added ESP-Reset via fhem. Added shade command to set the shutter to a predefined position. Position is set via the "ssp(channel)" cmd.
-  Added Group Reception.
-
-  30/10/2017
-  fixed an error which prevented to learn a motor to the dongle
-  reconfigured wifi as STA.
-
-  02/11/2017
-  added a switch (bool regular_learn = true; )to choose which learn method to use. Regular method is Up+Down at the same time followed by a stop.
-
-  11/11/2017 0.4a
-  improved senden-routine to prevent wdt to reset the device and get more compatibility (controlling and learing).
-
 */
+
+
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <EEPROM.h>
