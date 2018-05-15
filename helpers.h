@@ -46,7 +46,7 @@ void WriteStringToEEPROM(int beginaddress, String string)
     EEPROM.write(beginaddress + t, charBuf[t]);
   }
 }
-String  ReadStringFromEEPROM(int beginaddress)
+String  ReadStringFromEEPROM(int beginaddress, int MaxLen)
 {
   byte counter = 0;
   char rChar;
@@ -55,7 +55,7 @@ String  ReadStringFromEEPROM(int beginaddress)
   {
     rChar = EEPROM.read(beginaddress + counter);
     if (rChar == 0) break;
-    if (counter > 31) break;
+    if (counter > MaxLen) break;
     counter++;
     retString.concat(rChar);
 

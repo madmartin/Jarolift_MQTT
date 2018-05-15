@@ -169,7 +169,7 @@ void WriteConfig()
   WriteStringToEEPROM(164, config.ssid);
   WriteStringToEEPROM(196, config.password);
 
-  WriteStringToEEPROM(255, config.mqtt_broker_port);
+  WriteStringToEEPROM(262, config.mqtt_broker_port);
   WriteStringToEEPROM(270, config.master_msb);
   WriteStringToEEPROM(330, config.master_lsb);
   EEPROM.write(350, config.learn_mode);
@@ -197,6 +197,7 @@ void WriteConfig()
   WriteStringToEEPROM(1250, config.name_c15);
 
   EEPROM.commit();
+  delay(1000);
 }
 
 //####################################################################
@@ -230,34 +231,34 @@ boolean ReadConfig()
     config.mqtt_broker_addr[2] = EEPROM.read(158);
     config.mqtt_broker_addr[3] = EEPROM.read(159);
 
-    config.ssid = ReadStringFromEEPROM(164);
-    config.password = ReadStringFromEEPROM(196);
-    config.mqtt_broker_port = ReadStringFromEEPROM(255);
-    config.master_msb = ReadStringFromEEPROM(270);
-    config.master_lsb = ReadStringFromEEPROM(330);
-    config.learn_mode =   EEPROM.read(350);
-    config.serial = ReadStringFromEEPROM(366);
+    config.ssid = ReadStringFromEEPROM(164,32);
+    config.password = ReadStringFromEEPROM(196,64);
+    config.mqtt_broker_port = ReadStringFromEEPROM(262,6);
+    config.master_msb = ReadStringFromEEPROM(270,10);
+    config.master_lsb = ReadStringFromEEPROM(330,10);
+    config.learn_mode = EEPROM.read(350);
+    config.serial = ReadStringFromEEPROM(366,10);
 
-    config.mqtt_broker_client_id = ReadStringFromEEPROM(375);
-    config.mqtt_broker_username = ReadStringFromEEPROM(400);
-    config.mqtt_broker_password = ReadStringFromEEPROM(450);
+    config.mqtt_broker_client_id = ReadStringFromEEPROM(375,25);
+    config.mqtt_broker_username = ReadStringFromEEPROM(400,25);
+    config.mqtt_broker_password = ReadStringFromEEPROM(450,25);
 
-    config.name_c0 = ReadStringFromEEPROM(500);
-    config.name_c1 = ReadStringFromEEPROM(550);
-    config.name_c2 = ReadStringFromEEPROM(600);
-    config.name_c3 = ReadStringFromEEPROM(650);
-    config.name_c4 = ReadStringFromEEPROM(700);
-    config.name_c5 = ReadStringFromEEPROM(750);
-    config.name_c6 = ReadStringFromEEPROM(800);
-    config.name_c7 = ReadStringFromEEPROM(850);
-    config.name_c8 = ReadStringFromEEPROM(900);
-    config.name_c9 = ReadStringFromEEPROM(950);
-    config.name_c10 = ReadStringFromEEPROM(1000);
-    config.name_c11 = ReadStringFromEEPROM(1050);
-    config.name_c12 = ReadStringFromEEPROM(1100);
-    config.name_c13 = ReadStringFromEEPROM(1150);
-    config.name_c14 = ReadStringFromEEPROM(1200);
-    config.name_c15 = ReadStringFromEEPROM(1250);
+    config.name_c0 = ReadStringFromEEPROM(500,25);
+    config.name_c1 = ReadStringFromEEPROM(550,25);
+    config.name_c2 = ReadStringFromEEPROM(600,25);
+    config.name_c3 = ReadStringFromEEPROM(650,25);
+    config.name_c4 = ReadStringFromEEPROM(700,25);
+    config.name_c5 = ReadStringFromEEPROM(750,25);
+    config.name_c6 = ReadStringFromEEPROM(800,25);
+    config.name_c7 = ReadStringFromEEPROM(850,25);
+    config.name_c8 = ReadStringFromEEPROM(900,25);
+    config.name_c9 = ReadStringFromEEPROM(950,25);
+    config.name_c10 = ReadStringFromEEPROM(1000,25);
+    config.name_c11 = ReadStringFromEEPROM(1050,25);
+    config.name_c12 = ReadStringFromEEPROM(1100,25);
+    config.name_c13 = ReadStringFromEEPROM(1150,25);
+    config.name_c14 = ReadStringFromEEPROM(1200,25);
+    config.name_c15 = ReadStringFromEEPROM(1250,25);
     return true;
   }
   else
