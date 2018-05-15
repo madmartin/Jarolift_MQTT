@@ -3,6 +3,8 @@
 Controlling Jarolift(TM) TDEF 433MHz radio shutters via ESP8266 and CC1101 Transceiver Module in asynchronous mode.
 Experimental version.
 Use at your own risk. For private/educational use only. (Keeloq algorithm licensed only to TI Microcontrollers)
+This project is not affiliated in any way with the vendor of the Jarolift components.
+Jarolift is a Trademark of Schöneberger Rolladenfabrik GmbH & Co. KG
 
 This is the MQTT version of Jarolift_RX_TX_FHEM, which was originally developed to operate with the 
 FHEM home automation server. You find the FHEM version on the project's homepage.
@@ -100,10 +102,6 @@ VCC | VCC | 3.3 Volt !!!
 
 The running Jarolift Dongle does some debug output on the serial console.
 Console Speed is 115200 Bit/s
-
-There is a menu to configure some settings.
-Press "m" to enter menu.
-
 
 
 
