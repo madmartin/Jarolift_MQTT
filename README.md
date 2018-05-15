@@ -53,6 +53,34 @@ copy the folder KeeloqLib to the arduino library folder
 ### Compile
 
 Open the Arduino IDE and open the project .ino file (Jarolift_MQTT.ino)
+FIXME write more detailed description
+
+
+Check the board settings 
+In menu "Tools" set the correct board type. If you have any kind of NodeMCU, the board
+``NodeMCU 1.0 (ESP-12E Module`` will probably work.
+Dont forget to set the correct serial port (Tools->Port) every time after plugging the USB connector of the NodeMCU into the computer.
+
+
+
+Uploading files to SPIFFS (ESP8266 internal filesystem)
+------------------------------
+
+*ESP8266FS* is a tool which integrates into the Arduino IDE. It adds a
+menu item to *Tools* menu for uploading the contents of sketch data
+directory into ESP8266 flash file system.
+
+-  Download the [SPIFFS tool](https://github.com/esp8266/arduino-esp8266fs-plugin/releases/download/0.3.0/ESP8266FS-0.3.0.zip)
+-  In your Arduino sketchbook directory, create ``tools`` directory if
+   it doesn't exist yet
+-  Unpack the tool into ``tools`` directory (the path will look like
+   ``<home_dir>/Arduino/tools/ESP8266FS/tool/esp8266fs.jar``)
+-  Restart Arduino IDE
+-  Open the Jarolift_MQTT sketch
+-  Make sure you have selected a board, port, and closed Serial Monitor
+-  Select Tools > ESP8266 Sketch Data Upload. This should start
+   uploading the files into ESP8266 flash file system. When done, IDE
+   status bar will display ``SPIFFS Image Uploaded`` message.
 
 
 ### Cabling instructions
@@ -84,3 +112,4 @@ Press "m" to enter menu.
 You can contribute to Jarolift_MQTT by
 - providing Pull Requests (Features, Proof of Concepts, Language files or Fixes)
 - testing new released features and report issues
+- please try to follow the [Style-Guide](https://www.gnu.org/prep/standards/html_node/Writing-C.html#Writing-C)
