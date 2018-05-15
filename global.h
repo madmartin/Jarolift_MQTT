@@ -20,7 +20,7 @@
 
 #define ACCESS_POINT_NAME      "Jarolift-Dongle"  // default SSID fpr Admin-Mode
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
-#define AdminTimeOut           180                // Defines the Time in Seconds, when the Admin-Mode will be diabled
+#define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 
 ESP8266WebServer server(80);									    // The Webserver
 
@@ -106,7 +106,7 @@ void ConfigureWifi()
 {
   WriteLog("[INFO] - Connecting to", false);
   WriteLog(config.ssid, false);
-
+  WiFi.mode(WIFI_STA);
   WiFi.begin (config.ssid.c_str(), config.password.c_str());
   if (!config.dhcp)
   {

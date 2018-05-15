@@ -199,6 +199,7 @@ void setup()
   }
 
   // initialize the Transceiver Chip
+  WriteLog("[INFO] - Initializing the CC1101 Transceiver. If you get stuck here, it is probably not connected.", true);
   cc1101.init();
   cc1101.setSyncWord(syncWord, false);
   cc1101.setCarrierFreq(CFREQ_433);
@@ -208,16 +209,19 @@ void setup()
   if (AdminEnabled)
   {
     WriteLog("[WARN] - Admin-Mode enabled!", true);
-    WiFi.mode(WIFI_AP_STA);
-    WiFi.softAP( ACCESS_POINT_NAME , ACCESS_POINT_PASSWORD);
+    WriteLog("[WARN] - starting soft-AP ... ", false);
+    WiFi.mode(WIFI_AP);
+    WriteLog(WiFi.softAP(ACCESS_POINT_NAME, ACCESS_POINT_PASSWORD) ? "Ready" : "Failed!", true);
+    //WiFi.setAutoConnect(false);
+    WriteLog("[WARN] - Access Point <" + (String)ACCESS_POINT_NAME + "> activated. WPA password is "+ ACCESS_POINT_PASSWORD, true);
+    WriteLog("[WARN] - you have " + (String)AdminTimeOut + " seconds time to connect and configure!", true);
+    WriteLog("[WARN] - configuration webserver is http://" + WiFi.softAPIP().toString(), true);
   }
   else
   {
-    WiFi.mode(WIFI_STA);
+    // establish Wifi Connection in Station Mode
+    ConfigureWifi();
   }
-
-  // establish Wifi Connection
-  ConfigureWifi();
 
   // configure webserver and start it
   server.on ( "/api", html_api );                       // command api
@@ -275,8 +279,9 @@ void loop()
     if (AdminTimeOutCounter > AdminTimeOut)
     {
       AdminEnabled = false;
-      WriteLog("[WARN] - Admin-Mode disabled!", true);
-      WiFi.mode(WIFI_STA);
+      WriteLog("[WARN] - Admin-Mode disabled, soft-AP terminate ...", false);
+      WriteLog(WiFi.softAPdisconnect(true) ? "success" : "fail!", true);
+      ConfigureWifi();
     }
   }
   server.handleClient();
