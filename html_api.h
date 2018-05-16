@@ -164,12 +164,12 @@ void html_api(){
 
          web_cmd_channel = channel;
          web_cmd = cmd; 
-         String status_text = "Running command '" + cmd + "' for Channel " + channel + ".";
+         String status_text = "Running command '" + cmd + "' for channel " + channel + ".";
          server.send ( 200, "text/plain", status_text ); 
       }
 
     }else{
-      String status_text = "No Command to execute!";
+      String status_text = "No command to execute!";
       server.send ( 200, "text/plain", status_text );   
     }
   }

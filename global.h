@@ -18,14 +18,14 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#define ACCESS_POINT_NAME      "Jarolift-Dongle"  // default SSID fpr Admin-Mode
+#define ACCESS_POINT_NAME      "Jarolift-Dongle"  // default SSID for Admin-Mode
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 
-ESP8266WebServer server(80);									    // The Webserver
+ESP8266WebServer server(80);                      // The Webserver
 
-int AdminTimeOutCounter = 0;									    // Counter for Disabling the AdminMode
-boolean AdminEnabled = true;		                  // Enable Admin Mode for a given Time
+int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
+boolean AdminEnabled = true;                      // Enable Admin-Mode for a given Time
 Ticker tkSecond;                                  // Second - Timer for Updating Datetime Structure
 
 String web_cmd = "";                              // trigger to run a command whenever a action button has been pressed on the web interface
@@ -50,7 +50,8 @@ struct strConfig {
   String  mqtt_broker_password;
   String  master_msb;
   String  master_lsb;
-  boolean learn_mode;                         //If set to true, regular learn method is used (up+down, followed by stop). If set to false another method for older versions of Jarolift motors is used.
+  boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
+                              // If set to false another method for older versions of Jarolift motors is used.
   String  serial;
   String  name_c0;
   String  name_c1;
@@ -104,7 +105,7 @@ void WriteLog(String msg, boolean new_line = false)
 //####################################################################
 void ConfigureWifi()
 {
-  WriteLog("[INFO] - Connecting to", false);
+  WriteLog("[INFO] - connecting to", false);
   WriteLog(config.ssid, false);
   WiFi.mode(WIFI_STA);
   WiFi.begin (config.ssid.c_str(), config.password.c_str());
@@ -139,7 +140,7 @@ void ConfigureWifi()
 void WriteConfig()
 {
 
-  WriteLog("[INFO] - Writing Config to EEPROM", true);
+  WriteLog("[INFO] - write config to EEPROM", true);
   EEPROM.write(120, 'C');
   EEPROM.write(121, 'F');
   EEPROM.write(122, 'G');
@@ -206,11 +207,11 @@ void WriteConfig()
 boolean ReadConfig()
 {
 
-  WriteLog("[INFO] - Reading Config from EEPROM . . .", false);
+  WriteLog("[INFO] - read config from EEPROM . . .", false);
 
   if (EEPROM.read(120) == 'C' && EEPROM.read(121) == 'F'  && EEPROM.read(122) == 'G' )
   {
-    WriteLog("Configuration Found!", true);
+    WriteLog("configuration found", true);
 
     config.dhcp = 	EEPROM.read(128);
 
@@ -263,7 +264,7 @@ boolean ReadConfig()
   }
   else
   {
-    WriteLog("[INFO] - Configurarion NOT FOUND!!!!", true);
+    WriteLog("[INFO] - no configuration found in EEPROM!!!!", true);
     return false;
   }
 }

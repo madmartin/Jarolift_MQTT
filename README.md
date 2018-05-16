@@ -111,3 +111,4 @@ You can contribute to Jarolift_MQTT by
 - providing Pull Requests (Features, Proof of Concepts, Language files or Fixes)
 - testing new released features and report issues
 - please try to follow the [Style-Guide](https://www.gnu.org/prep/standards/html_node/Writing-C.html#Writing-C)
+  [another Style-Guide](https://google.github.io/styleguide/cppguide.html)
