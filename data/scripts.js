@@ -202,7 +202,7 @@ function inlineDefaultUpdateCell(cell, i, rowName, options) {
       cellContent += "/>";
       break;
     case "text":
-      cellContent += `<input type='text' value='${inlineEditRowContents[rowName][i]}' form='${rowName}Form'`;
+      cellContent += `<input type='text' value='${inlineEditRowContents[rowName][i]}' maxlength="25" form='${rowName}Form'`;
       for (key in cell.dataset) {
         if (cell.dataset.hasOwnProperty(key) && key.substr(0, 6) == "inline" && attributesFilter.indexOf(key) == -1) {
           cellContent += ` ${key.substr(6)}='${cell.dataset[key]}'`;
