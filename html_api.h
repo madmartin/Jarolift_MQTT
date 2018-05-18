@@ -85,6 +85,10 @@ void html_api(){
          server.send ( 200, "text/plain", "Configuration has been saved. System is restarting. Please refresh manually in about 30 seconds." );
          delay(500);
          ESP.restart();
+      }else if (cmd == "restart"){
+         server.send ( 200, "text/plain", "System is restarting. Please refresh manually in about 30 seconds." );
+         delay(500);
+         ESP.restart();
       }else if (cmd == "save and generate serials"){
          web_cmd_channel = channel;
          web_cmd = cmd;
