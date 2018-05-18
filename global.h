@@ -24,8 +24,9 @@
 
 ESP8266WebServer server(80);                      // The Webserver
 
+boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoint for configuration
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
-boolean AdminEnabled = true;                      // Enable Admin-Mode for a given Time
+int led_pin = 2;                                  // GPIO Pin number for LED
 Ticker tkSecond;                                  // Second - Timer for Updating Datetime Structure
 
 String web_cmd = "";                              // trigger to run a command whenever a action button has been pressed on the web interface

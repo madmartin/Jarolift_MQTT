@@ -47,9 +47,12 @@
 #include <FS.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
+#include <DoubleResetDetector.h>
+
 #include "helpers.h"
 #include "global.h"
 #include "html_api.h"
+
 extern "C" {
 #include <Wire.h>
 #include <stdint.h>
@@ -66,6 +69,13 @@ extern "C" {
 #include <KeeloqLib.h>
 #include <stdlib.h>
 }
+
+// Number of seconds after reset during which a
+// subseqent reset will be considered a double reset.
+#define DRD_TIMEOUT 10
+
+// RTC Memory Address for the DoubleResetDetector to use
+#define DRD_ADDRESS 0
 
 // User configuration
 #define Lowpulse         400    // Defines pulse-width in microseconds. Adapt for your use...
@@ -125,7 +135,7 @@ int steadycnt = 0;
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
-
+DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
 void ICACHE_RAM_ATTR measure()        // Receive Routine
 {
@@ -196,7 +206,6 @@ void setup()
     config.serial = "12345600";
     WriteConfig();
     WriteLog("[INFO] - default config applied", true);
-
   }
 
   // initialize the transceiver chip
@@ -204,7 +213,18 @@ void setup()
   cc1101.init();
   cc1101.setSyncWord(syncWord, false);
   cc1101.setCarrierFreq(CFREQ_433);
-  cc1101.disableAddressCheck();   //if not specified, will only display "packet received"
+  cc1101.disableAddressCheck();   // if not specified, will only display "packet received"
+
+  pinMode(led_pin, OUTPUT);   // prepare LED on ESP-Chip
+
+  // test if the WLAN SSID is on default
+  // or DoubleReset detected
+  if ((drd.detectDoubleReset()) || (config.ssid == "MYSSID")) {
+    digitalWrite(led_pin, LOW);  // turn LED on                    // if yes then turn on LED
+    AdminEnabled = true;                                           // and go to Admin-Mode
+  } else {
+    digitalWrite(led_pin, HIGH); // turn LED off                   // turn LED off
+  }
 
   // enable access point mode if Admin-Mode is enabled
   if (AdminEnabled)
@@ -275,12 +295,19 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
 void loop()
 {
 
+  // Call the double reset detector loop method every so often,
+  // so that it can recognise when the timeout expires.
+  // You can also call drd.stop() when you wish to no longer
+  // consider the next reset as a double reset.
+  drd.loop();
+
   // disable Admin-Mode after AdminTimeOut
   if (AdminEnabled)
   {
     if (AdminTimeOutCounter > AdminTimeOut)
     {
       AdminEnabled = false;
+      digitalWrite(led_pin, HIGH);   // turn LED off
       WriteLog("[WARN] - Admin-Mode disabled, soft-AP terminate ...", false);
       WriteLog(WiFi.softAPdisconnect(true) ? "success" : "fail!", true);
       ConfigureWifi();
