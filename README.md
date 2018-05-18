@@ -7,7 +7,7 @@ This project is not affiliated in any way with the vendor of the Jarolift compon
 Jarolift is a Trademark of Schöneberger Rolladenfabrik GmbH & Co. KG
 
 This is the MQTT version of Jarolift_RX_TX_FHEM, which was originally developed to operate with the 
-FHEM home automation server. You find the FHEM version on the project's homepage.
+FHEM home automation server. You find the original FHEM version on the project's homepage.
 
 
 ### Author
@@ -17,7 +17,7 @@ Written by Steffen Hille in Nov, 2017
 
 ### Project Homepage and Forum
 
-The project home is here [Project Home](http://www.bastelbudenbuben.de/2017/04/25/protokollanalyse-von-jarolift-tdef-motoren/)
+The project home is here: [Project Home](http://www.bastelbudenbuben.de/2017/04/25/protokollanalyse-von-jarolift-tdef-motoren/)
 If you need support please use the forum [Project Forum](http://www.bastelbudenbuben.de/forum/)
 
 
@@ -25,6 +25,7 @@ If you need support please use the forum [Project Forum](http://www.bastelbudenb
 The main code of Jarolift_MQTT is licensed under the GPLv3. 
 The provided libraries have different licenses, look into the respective files for more information.
 * CC1101 library        LGPL-License
+* DoubleResetDetector   MIT License
 * Keeloq library        unknown License
 * PubSubClient-2.6.09   "AS-IS"-License
 
@@ -48,6 +49,7 @@ Download and / or unpack this project folder to a subfolder of this sketch direc
 Locate the user library folder of your arduino sketch directory
 Default under linux: $HOME/Arduino/lib/
 
+copy the folder DoubleResetDetector to the arduino library folder
 copy the folder PubSubClient-2.6.09 to the arduino library folder
 copy the folder KeeloqLib to the arduino library folder
 
@@ -57,16 +59,23 @@ copy the folder KeeloqLib to the arduino library folder
 Open the Arduino IDE and open the project .ino file (Jarolift_MQTT.ino)
 FIXME write more detailed description
 
-
-Check the board settings 
+#### Check the board settings
 In menu "Tools" set the correct board type. If you have any kind of NodeMCU, the board
 ``NodeMCU 1.0 (ESP-12E Module`` will probably work.
-Dont forget to set the correct serial port (Tools->Port) every time after plugging the USB connector of the NodeMCU into the computer.
+The following settings have proofed to work with a NodeMCU v1.0/V2 [comparison of boards](https://frightanic.com/iot/comparison-of-esp8266-nodemcu-development-boards/)
+
+* Board: "NodeMCU 1.0 (ESP-12E Module"
+* Flash Size: "4M (1M SPIFFS)"
+* lwIP variant: "v2 Prebuilt (MSS)536)"
+* CPU frquency: "80 MHz"
+* Upload speed: "115200"
+
+Dont forget to set the correct serial port (Tools->Port) **every time** after plugging the USB connector of the NodeMCU into the computer.
+
+Upload the compiled sketch into the NodeMCU. Second, you need to upload the files from the data directory into the SPIFFS area. This is only necessary on first use of the NodeMCU and then only after the content of the files has changed.
 
 
-
-Uploading files to SPIFFS (ESP8266 internal filesystem)
-------------------------------
+### Uploading files to SPIFFS (ESP8266 internal filesystem)
 
 *ESP8266FS* is a tool which integrates into the Arduino IDE. It adds a
 menu item to *Tools* menu for uploading the contents of sketch data
@@ -98,11 +107,27 @@ GND | GND
 VCC | VCC | 3.3 Volt !!!
 
 
-### Usage instructions
+### Setup instructions
+
+The configuration of the Jarolift Dongle is stored in the EEPROM memory of the ESP8266. On first initialisation, when no configuration is found, it is initialized with some default values and the Dongle turns on the Admin-Mode.
+
+In Admin-Mode, the blue LED on the ESP submodule is turned on and the Dongle creates an WLAN-Access-Point with the SSID "Jarolift-Dongle", protectet with the WPA-Passwort "12345678". Now you have 180 seconds (3 minutes) time to connect to the WLAN Accesspoint and visit the configuration webserver on 
+
+http://192.168.4.1
+
+Admin-Mode quits after the 180 second timeout or when you restart the Dongle from the configuration webserver.
+
+If you need the Admin-Mode later, just press the "Reset" button on the module two times within 10 seconds. This double-reset will be detected and the Dongle enters Admin-Mode again, showing this with the blue LED turned on.
 
 The running Jarolift Dongle does some debug output on the serial console.
 Console Speed is 115200 Bit/s
 
+
+### Known issues
+
+* after upgrade to this release, due to changes of the EEPROM memory layout the MQTT port parameter needs to be set again.
+* when Dongle looses the WLAN connection, the reconnect behaviour may not be good.
+* when Dongle losses the connection to the MQTT server, reconnect behaviour may not be good.
 
 
 ### Contribute
