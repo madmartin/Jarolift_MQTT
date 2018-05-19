@@ -350,8 +350,6 @@ void loop()
     rx_serial_array[2] = (rx_serial >> 8) & 0xFF;
     rx_serial_array[3] = rx_serial & 0xFF;
 
-    Serial.println(rx_serial, HEX);
-
     for (int i = 0; i <= 3; i++) {                        // extracting function code
       if (lowbuf[61 + i] < hibuf[61 + i]) {
         rx_function = rx_function & ~(1 << i) | (0 << i);
@@ -359,7 +357,6 @@ void loop()
         rx_function = rx_function & ~(1 << i) | (1 << i);
       }
     }
-    Serial.println(rx_function, HEX);
 
     for (int i = 0; i <= 7; i++) {                        // extracting high disc
       if (lowbuf[65 + i] < hibuf[65 + i]) {
@@ -368,7 +365,8 @@ void loop()
         rx_disc_h = rx_disc_h & ~(1 << i) | (1 << i);
       }
     }
-    Serial.println(rx_disc_h, HEX);
+
+    Serial.printf("serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
 
     rx_disc_high[0] = rx_disc_h & 0xFF;
     rx_keygen ();
@@ -451,11 +449,7 @@ int keygen () {
   enc    = k.decrypt(keylow);
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
-  Serial.print("Devicekey Low : "); Serial.print(device_key_lsb, HEX);
-  Serial.println();
-  Serial.print("Devicekey High: "); Serial.print(device_key_msb, HEX);
-  Serial.println();
-  Serial.println();
+  Serial.printf("devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
 }
 
 void senden(int repetitions) {         // Simple TX routine. Repetitions for simulate continuous button press.
@@ -599,11 +593,7 @@ int rx_keygen () {      // Calculate device code from received serial number
   enc    = k.decrypt(keylow);
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
-  Serial.print("Device KeyLow : "); Serial.print(rx_device_key_lsb, HEX);
-  Serial.println();
-  Serial.print("Device KeyHigh: "); Serial.print(rx_device_key_msb, HEX);
-  Serial.println();
-  Serial.println();
+  Serial.printf("devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
 }
 
 int rx_decoder () {                // Decoding of the hopping code
@@ -613,8 +603,7 @@ int rx_decoder () {                // Decoding of the hopping code
   rx_disc_low[0] = (decoded >> 24) & 0xFF;
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
 
-  Serial.print("Decoded: "); Serial.print(decoded, HEX);
-  Serial.println();
+  Serial.printf(" // decoded: 0x%08x\n\n",decoded);
 }
 
 void ReadRSSI()
