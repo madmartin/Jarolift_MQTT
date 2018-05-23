@@ -908,11 +908,17 @@ void mqtt_reconnect() {
     const char* client_id = config.mqtt_broker_client_id.c_str();
     const char* username = config.mqtt_broker_username.c_str();
     const char* password = config.mqtt_broker_password.c_str();
-    if (mqtt_client.connect(client_id, username, password)) {
+    const char* willTopic = "tele/jarolift/LWT";   // connect with included "Last-Will-and-Testament" message
+    uint8_t willQos = 1;
+    boolean willRetain = true;
+    const char* willMessage = "Offline";           // LWT message says "Offline"
+    if (mqtt_client.connect(client_id, username, password,willTopic, willQos, willRetain, willMessage )) {
       MqttRetryCounter = 0;
       WriteLog("success!", true);
       // subscribe the needed topics
       mqtt_client.subscribe("cmd/jarolift/shutter/+");
+      // publish telemetry message "we are online now"
+      mqtt_client.publish("tele/jarolift/LWT", "Online", true);
 
       // retry if something went trong
     } else {
