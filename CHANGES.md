@@ -2,6 +2,10 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+2018-05-24
+* add LWT to mqtt connect
+* mqtt client-id must be unique in the network, so add code to append ESP-ID to default
+  client-id to make it unique
 
 2018-05-18
 * Admin-Mode changed to Access-Point only

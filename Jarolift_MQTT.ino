@@ -199,13 +199,25 @@ void setup()
     config.gateway[0] = 192; config.gateway[1] = 168; config.gateway[2] = 1; config.gateway[3] = 1;
     config.mqtt_broker_addr[0] = 192; config.mqtt_broker_addr[1] = 168; config.mqtt_broker_addr[2] = 1; config.mqtt_broker_addr[3] = 1;
     config.mqtt_broker_port = "1883";
+    char chipIdString[10];
+    sprintf(chipIdString,"-%08x",ESP.getChipId());
     config.mqtt_broker_client_id = "JaroliftDongle";
+    config.mqtt_broker_client_id += chipIdString;
     config.master_msb = "0x12345678";
     config.master_lsb = "0x12345678";
     config.learn_mode = true;
     config.serial = "12345600";
     WriteConfig();
     WriteLog("[INFO] - default config applied", true);
+  }
+
+  // check if mqtt client-ID needs migration to new unique ID
+  if (config.mqtt_broker_client_id == "JaroliftDongle") {
+    char chipIdString[10];
+    sprintf(chipIdString, "-%08x", ESP.getChipId());
+    config.mqtt_broker_client_id += chipIdString;
+    WriteLog("[INFO] - mqtt_broker_client_id changed to "+config.mqtt_broker_client_id, true);
+    WriteConfig();
   }
 
   // initialize the transceiver chip
