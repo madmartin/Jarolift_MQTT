@@ -31,35 +31,63 @@
 
         <br>
         <h3>General</h3>
-        This version is a fork of the "Jarolift TDEF in FHEM" project described in <a class="siimple-link" target="_blank" href="http://www.bastelbudenbuben.de/2017/04/25/protokollanalyse-von-jarolift-tdef-motoren/">here</a>.
+        This version is a fork of the &quot;Jarolift TDEF in FHEM&quot; project described in <a class="siimple-link" target="_blank" href="http://www.bastelbudenbuben.de/2017/04/25/protokollanalyse-von-jarolift-tdef-motoren/">here</a>.
         Other than the original version, this fork works with Message Queuing Telemetry Transport (MQTT) procotol. MQTT enables communication with several different Smart Home systems like OpenHab, FHEM or Home Assistant.
         <br><br>
         <h3>MQTT topic structure</h3>
-        This version uses MQTT topics with the following syntax. Each of the 16 shutter channels can be individually controlled. The commands "UP", "DOWN", "STOP", "SHADE", "SETSHADE" as well as "LEARN" are supported.
+        This version uses MQTT topics with the following parts, combined by &quot;/&quot; characters:
+	<ul>
+		<li>command type prefix: one of &quot;cmd&quot;, &quot;tele&quot;, &quot;stat&quot;.</li>
+		<li>identifying device name - can be configured. default: &quot;jarolift&quot;.</li>
+		<li>fix part: &quot;shutter&quot;</li>
+		<li>the numeric channel name</li>
+	</ul>
+	The MQTT payload for the &quot;cmd&quot; commands are: &quot;UP&quot;, &quot;DOWN&quot;, &quot;STOP&quot;, &quot;SHADE&quot;, &quot;SETSHADE&quot; and &quot;LEARN&quot;.
+	All MQTT topics and commands are case sensitive, use them exactly as described here.
         <p>
-          <h4>MQTT topics to send commands to the Wifi Dongle:</h4>
+          <h4>example MQTT topics to send commands to the Wifi Dongle:</h4>
           <pre class="siimple-pre">
-  cmd/jarolift/shutter/{0-15}:UP
-  cmd/jarolift/shutter/{0-15}:DOWN
-  cmd/jarolift/shutter/{0-15}:STOP
-  cmd/jarolift/shutter/{0-15}:SHADE
-  cmd/jarolift/shutter/{0-15}:SETSHADE
-  cmd/jarolift/shutter/{0-15}:LEARN</pre>
+  cmd/jarolift/shutter/0 UP
+  cmd/jarolift/shutter/4 DOWN
+  cmd/jarolift/shutter/2 STOP
+  cmd/jarolift/shutter/6 SHADE
+  cmd/jarolift/shutter/12 SETSHADE
+  cmd/jarolift/shutter/12 LEARN</pre>
         </p>
         <p>
-          <h4>MQTT topics to receive the status of a shutter:</h4>
+          <h4>MQTT topics send back with the updated status of a shutter:</h4>
+	  The status of a shutter is:
+	  <ul>
+		  <li>0 - open</li>
+		  <li>90 - shade position</li>
+		  <li>100 - close</li>
+          </ul>
           <pre class="siimple-pre">
-  stat/jarolift/shutter/{0-15}:state:default</pre>
+  stat/jarolift/shutter/0 100</pre>
         </p>
         <br>
         <h3>Integration into openHAB</h3>
         The integration in Smart Home system openHAB is actually pretty easy. Just install a MQTT broker binding and add the following into the item configuration:
         <pre class="siimple-pre">
-  Rollershutter shutter1 "shutter1" {mqtt=">[mosquitto:cmd/jarolift/shutter/0:command:*:default], <[mosquitto:stat/jarolift/shutter/0:state:default]"}
-  Rollershutter shutter2 "shutter2" {mqtt=">[mosquitto:cmd/jarolift/shutter/1:command:*:default], <[mosquitto:stat/jarolift/shutter/1:state:default]"}
-  Rollershutter shutter3 "shutter3" {mqtt=">[mosquitto:cmd/jarolift/shutter/2:command:*:default], <[mosquitto:stat/jarolift/shutter/2:state:default]"}
+  Rollershutter shutter1 &quot;shutter1&quot; {mqtt=&quot;&lt;[mosquitto:cmd/jarolift/shutter/0:command:*:default], &gt;[mosquitto:stat/jarolift/shutter/0:state:default]&quot;}
+  Rollershutter shutter2 &quot;shutter2&quot; {mqtt=&quot;&lt;[mosquitto:cmd/jarolift/shutter/1:command:*:default], &gt;[mosquitto:stat/jarolift/shutter/1:state:default]&quot;}
+  Rollershutter shutter3 &quot;shutter3&quot; {mqtt=&quot;&lt;[mosquitto:cmd/jarolift/shutter/2:command:*:default], &gt;[mosquitto:stat/jarolift/shutter/2:state:default]&quot;}
         </pre>
-
+        <br>
+        <h3>Integration into Home Assistant</h3>
+        Here is a configuration example for Home Assistant:
+        <pre class="siimple-pre">
+cover:
+  - platform: mqtt
+    name: &quot;Wohnzimmer links&quot;
+    command_topic: &quot;cmd/jarolift/shutter/1&quot;
+    availability_topic: &quot;tele/jarolift/LWT&quot;
+    payload_open: &quot;UP&quot;
+    payload_close: &quot;DOWN&quot;
+    payload_stop: &quot;STOP&quot;
+    payload_available: &quot;Online&quot;
+    payload_not_available: &quot;Offline&quot;
+        </pre>
 
       </div>
     </div>
