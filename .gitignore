@@ -11,3 +11,6 @@
 .gcc-flags.json
 .vscode
 user_config_override.h
+
+## compiled binaries
+*.bin
