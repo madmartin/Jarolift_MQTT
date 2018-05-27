@@ -131,7 +131,14 @@
                 <!-- broker client Id -->
                 <div class="siimple-form-field">
                   <div class="siimple-form-field-label">client id</div>
-                  <input type="text" id="mqtt_broker_client_id" n<me="mqtt_broker_client_id" maxlength=25 class="siimple-input siimple-input--fluid">
+		  Client id must be unique // default: JaroliftDongle-&lt;ESP-ID&gt;
+                  <input type="text" id="mqtt_broker_client_id" name="mqtt_broker_client_id" maxlength=25 class="siimple-input siimple-input--fluid">
+                </div>
+                <!-- mqtt device topic -->
+                <div class="siimple-form-field">
+                  <div class="siimple-form-field-label">device topic</div>
+                  middle part of the mqtt topic to identify the device (if more than one jarolift dongle is used) // default: jarolift
+                  <input type="text" id="mqtt_device_topic" name="mqtt_device_topic" maxlength=20 class="siimple-input siimple-input--fluid">
                 </div>
     
                 <div class="siimple-form-title">Jarolift settings</div>
