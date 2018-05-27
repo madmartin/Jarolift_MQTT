@@ -130,7 +130,19 @@ Console Speed is 115200 Bit/s
 * after upgrade to this release, due to changes of the EEPROM memory layout the MQTT port parameter needs to be set again.
 * when Dongle looses the WLAN connection, the reconnect behaviour may not be good.
 * when Dongle looses the connection to the MQTT server, reconnect behaviour may not be good.
+* after flashing the NodeMCU board, on the first run of the fresh flashed sketch, the restart function may not properly work, causes the NodeMCU board board to hang. On the serial monitor, you see output like
+```
+handleFileRead: /favicon.png
+ [INFO] - Writing Config to EEPROM
 
+ ets Jan  8 2013,rst cause:2, boot mode:(1,6)
+
+
+ ets Jan  8 2013,rst cause:4, boot mode:(1,6)
+
+wdt reset
+```
+* this is a hardware issue, solution: power cycle your NodeMCU after flashing, pressing the reset button is not sufficient
 
 ### Contribute
 
