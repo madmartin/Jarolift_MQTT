@@ -70,6 +70,8 @@ extern "C" {
 #include <stdlib.h>
 }
 
+#define PROGRAM_VERSION "v0.6-rc1"
+
 // Number of seconds after reset during which a
 // subseqent reset will be considered a double reset.
 #define DRD_TIMEOUT 10
@@ -185,7 +187,8 @@ void setup()
   EEPROM.begin(4096);
   Serial.begin(115200);
   delay(500);
-  WriteLog("[INFO] - starting Jarolift Dongle", true);
+  WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
+  WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 
   // apply default config if saved configuration not yet exist
   if (!ReadConfig())
