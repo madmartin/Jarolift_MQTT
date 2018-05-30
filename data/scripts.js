@@ -56,7 +56,7 @@ function getChannelName(){
 
         if (result[0] != ""){
 
-          //get channel Id and det configured status
+          //get channel Id and get configured status
           var channel_id = (result[0].split('_'))[1];
           var configured = true;
 
@@ -71,9 +71,9 @@ function getChannelName(){
           // create new element
           var element = document.createElement("div");
           element.setAttribute("name", "shuttercontrol");
-           // add HTML stuff to the element
+          // add HTML stuff to the element
           element.innerHTML = `
-            <table><tr id=` + channel_id + `><td data-inlineType="text" data-inlineName="channel_name" style="font-size: 2.3rem;">` + result[1] + `</td><td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('` + channel_id + `', setChannelName)">edit</a></td></tr></table>
+            <table><tr id=` + channel_id + `> <td> Ch-` + channel_id + ` </td> <td data-inlineType="text" data-inlineName="channel_name" style="font-size: 2.3rem;">` + result[1] + `</td><td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('` + channel_id + `', setChannelName)">edit</a></td></tr></table>
             <div class="siimple-grid-row">
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('up', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">UP</div></div>
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('stop', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">STOP</div></div>
