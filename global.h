@@ -38,6 +38,7 @@ int web_log_message_count = 0;
 
 
 struct strConfig {
+  uint16_t cfgVersion;
   String  ssid;
   String  password;
   byte    ip[4];
@@ -49,6 +50,7 @@ struct strConfig {
   String  mqtt_broker_client_id;
   String  mqtt_broker_username;
   String  mqtt_broker_password;
+  String  mqtt_devicetopic;
   String  master_msb;
   String  master_lsb;
   boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
@@ -135,16 +137,16 @@ void ConfigureWifi()
   }
 }
 
-//####################################################################
-// Function to write configuration into EEPROM
-//####################################################################
+//################################################################
+// Function to write newest version of configuration into EEPROM
+//################################################################
 void WriteConfig()
 {
-
   WriteLog("[INFO] - write config to EEPROM", true);
   EEPROM.write(120, 'C');
-  EEPROM.write(121, 'F');
-  EEPROM.write(122, 'G');
+  EEPROM.write(121, 'f');
+  EEPROM.write(122, 'g');
+  EEPROM.put(123, config.cfgVersion);
 
   EEPROM.write(128, config.dhcp);
 
@@ -180,6 +182,7 @@ void WriteConfig()
   WriteStringToEEPROM(375, config.mqtt_broker_client_id);
   WriteStringToEEPROM(400, config.mqtt_broker_username);
   WriteStringToEEPROM(450, config.mqtt_broker_password);
+  WriteStringToEEPROM(1300, config.mqtt_devicetopic);
 
   WriteStringToEEPROM(500, config.name_c0);
   WriteStringToEEPROM(550, config.name_c1);
@@ -207,15 +210,29 @@ void WriteConfig()
 //####################################################################
 boolean ReadConfig()
 {
-
   WriteLog("[INFO] - read config from EEPROM . . .", false);
+  config.cfgVersion = 0;
 
   if (EEPROM.read(120) == 'C' && EEPROM.read(121) == 'F'  && EEPROM.read(122) == 'G' )
   {
-    WriteLog("configuration found", true);
-
-    config.dhcp = 	EEPROM.read(128);
-
+    WriteLog("config version 1 found", true);
+    config.cfgVersion = 1;
+  } else
+  {
+    if (EEPROM.read(120) == 'C' && EEPROM.read(121) == 'f'  && EEPROM.read(122) == 'g' )
+    {
+      EEPROM.get(123,config.cfgVersion);
+      WriteLog("config version "+ (String) config.cfgVersion+ " found", true);
+    }
+  }
+  if (config.cfgVersion==0)
+  {
+    WriteLog(" no configuration found in EEPROM!!!!", true);
+    return false;
+  }
+  if (config.cfgVersion<=2)   // read config parts up to version 2
+  {
+    config.dhcp = EEPROM.read(128);
     config.ip[0] = EEPROM.read(144);
     config.ip[1] = EEPROM.read(145);
     config.ip[2] = EEPROM.read(146);
@@ -261,13 +278,23 @@ boolean ReadConfig()
     config.name_c13 = ReadStringFromEEPROM(1150,25);
     config.name_c14 = ReadStringFromEEPROM(1200,25);
     config.name_c15 = ReadStringFromEEPROM(1250,25);
-    return true;
   }
-  else
-  {
-    WriteLog("[INFO] - no configuration found in EEPROM!!!!", true);
-    return false;
+  if (config.cfgVersion==2)
+  {                                       // read config parts of version 2
+    config.mqtt_devicetopic = ReadStringFromEEPROM(1300,20);
+  } else
+  {                                       // upgrade config to version 2
+    config.mqtt_devicetopic = "jarolift"; // default devicetopic
+    config.cfgVersion = 2;
+    // clear EEPROM space
+    int index = 0;
+    for (int index = 120 ; index < 4096 ; index++) {
+      EEPROM.write(index, 0);
+    }
+    WriteLog("[INFO] - config update to version 2 - mqtt_devicetopic set to default", true);
+    WriteConfig();
   }
+  return true;
 }
 
 //############################################################################
@@ -282,6 +309,7 @@ void InitializeConfigData()
   if (!ReadConfig())
   {
     // DEFAULT CONFIG
+    config.cfgVersion = 2;
     config.ssid = "MYSSID";
     config.password = "MYPASSWORD";
     config.dhcp = true;
@@ -292,6 +320,7 @@ void InitializeConfigData()
     config.mqtt_broker_port = "1883";
     config.mqtt_broker_client_id = "JaroliftDongle";
     config.mqtt_broker_client_id += chipIdString;
+    config.mqtt_devicetopic = "jarolift";
     config.master_msb = "0x12345678";
     config.master_lsb = "0x12345678";
     config.learn_mode = true;
