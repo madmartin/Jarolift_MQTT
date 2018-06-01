@@ -98,14 +98,8 @@ byte serials[16]         = {0x0, 0x1, 0x2, 0x3, 0x4,  0x5,  0x6,  0x7, 0x8, 0x9,
 byte disc_l              = 0;
 byte disc_h              = 0;
 byte adresses[]          = {5, 11, 17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 85, 91, 97 }; // Defines start addresses of channel data stored in EEPROM 4bytes s/n.
-char new_serial1[9];
-char packet[2];
-char group[9];
 uint64_t new_serial      = 0;
-int z;
 int cntadr               = 110;  // Where the 16Bit counter is stored.
-int p = 0;
-bool espstatus;
 byte marcState;
 int MqttRetryCounter = 0;                 // Counter for MQTT reconnect
 
@@ -243,7 +237,6 @@ void setup()
                         config.mqtt_broker_addr[3] ), config.mqtt_broker_port.toInt()); // point to MQTT broker
   mqtt_client.setCallback(mqtt_callback);   // define Handler for incoming messages
 
-  espstatus = true;
   pinMode(4, OUTPUT); // TX Pin
 
   // RX
@@ -868,7 +861,7 @@ void cmd_generate_serials(String sn) {
   const char* serial = sn.c_str();
   WriteLog("Generate serial numbers starting from", false);
   WriteLog(sn, true);
-  z = atoi(serial);               // set serial number range
+  int z = atoi(serial);           // set serial number range
   for (int i = 0; i <= 15; ++i) { // Generation of 16 serial numbers and storage in EEPROM
     EEPROM.put(adresses[i], z);   // Serial 4Bytes
     z++;
