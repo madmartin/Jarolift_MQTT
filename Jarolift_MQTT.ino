@@ -697,7 +697,7 @@ void cmd_up(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command UP for channel " + (String) channel + " sent.", true);
-  String Topic = "stat/jarolift/shutter/" + (String)channel;
+  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "0");
 }
@@ -728,7 +728,7 @@ void cmd_down(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command DOWN for channel " + (String) channel + " sent.", true);
-  String Topic = "stat/jarolift/shutter/" + (String)channel;
+  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "100");
 }
@@ -789,7 +789,7 @@ void cmd_shade(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command SHADE for channel " + (String) channel + " sent.", true);
-  String Topic = "stat/jarolift/shutter/" + (String)channel;
+  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "90");
 }
@@ -884,23 +884,26 @@ void cmd_generate_serials(String sn) {
 //####################################################################
 void mqtt_reconnect() {
   // retry as long as the connection is established
+
+  const char* client_id = config.mqtt_broker_client_id.c_str();
+  const char* username = config.mqtt_broker_username.c_str();
+  const char* password = config.mqtt_broker_password.c_str();
+  String willTopic = "tele/"+ config.mqtt_devicetopic+ "/LWT"; // connect with included "Last-Will-and-Testament" message
+  uint8_t willQos = 0;
+  boolean willRetain = true;
+  const char* willMessage = "Offline";           // LWT message says "Offline"
+  String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/shutter/+";
+
   while (!mqtt_client.connected() && MqttRetryCounter < 5) {
     WriteLog("[INFO] - trying to connect to MQTT broker . . .", false);
     // try to connect to MQTT
-    const char* client_id = config.mqtt_broker_client_id.c_str();
-    const char* username = config.mqtt_broker_username.c_str();
-    const char* password = config.mqtt_broker_password.c_str();
-    const char* willTopic = "tele/jarolift/LWT";   // connect with included "Last-Will-and-Testament" message
-    uint8_t willQos = 1;
-    boolean willRetain = true;
-    const char* willMessage = "Offline";           // LWT message says "Offline"
-    if (mqtt_client.connect(client_id, username, password,willTopic, willQos, willRetain, willMessage )) {
+    if (mqtt_client.connect(client_id, username, password, willTopic.c_str(), willQos, willRetain, willMessage )) {
       MqttRetryCounter = 0;
       WriteLog("success!", true);
       // subscribe the needed topics
-      mqtt_client.subscribe("cmd/jarolift/shutter/+");
+      mqtt_client.subscribe(subscribeString.c_str());
       // publish telemetry message "we are online now"
-      mqtt_client.publish("tele/jarolift/LWT", "Online", true);
+      mqtt_client.publish(willTopic.c_str(), "Online", true);
 
       // retry if something went trong
     } else {
