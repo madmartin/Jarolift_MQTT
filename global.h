@@ -23,6 +23,8 @@
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 
 ESP8266WebServer server(80);                      // The Webserver
+WiFiClient espClient;
+PubSubClient mqtt_client(espClient);
 
 boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoint for configuration
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
@@ -336,7 +338,6 @@ void InitializeConfigData()
     WriteConfig();
   }
 }
-
 
 void Admin_Mode_Timeout()
 {

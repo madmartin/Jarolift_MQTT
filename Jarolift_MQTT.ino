@@ -135,8 +135,6 @@ char sn[4] = {0};
 int steadycnt = 0;
 
 
-WiFiClient espClient;
-PubSubClient mqtt_client(espClient);
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
 void ICACHE_RAM_ATTR measure()        // Receive Routine
