@@ -690,7 +690,7 @@ void cmd_up(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command UP for channel " + (String) channel + " sent.", true);
-  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
+  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "0");
 }
@@ -721,7 +721,7 @@ void cmd_down(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command DOWN for channel " + (String) channel + " sent.", true);
-  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
+  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "100");
 }
@@ -782,7 +782,7 @@ void cmd_shade(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command SHADE for channel " + (String) channel + " sent.", true);
-  String Topic = "cmd/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
+  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "90");
 }
