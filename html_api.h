@@ -72,7 +72,7 @@ void html_api(){
       if (cmd == "eventlog"){
          String values ="";
          String counter;
-         for( int i = 0; i < 40;  ++i ){
+         for( int i = 0; i < NUM_WEB_LOG_MESSAGES;  ++i ){
             if (web_log_message[i] != ""){
                if ((i+1) < 10) {
                   counter = "0" + String(i + 1);

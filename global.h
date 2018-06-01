@@ -34,8 +34,9 @@ Ticker tkSecond;                                  // Second - Timer for Updating
 String web_cmd = "";                              // trigger to run a command whenever a action button has been pressed on the web interface
 int web_cmd_channel;                              // keeps the respective channel ID for the web_cmd
 
+#define NUM_WEB_LOG_MESSAGES 42                   // number of messages in the web-UI log page
 String web_log = "";                              // used to store log information for displaying in webIF
-String web_log_message[40];
+String web_log_message[NUM_WEB_LOG_MESSAGES];
 int web_log_message_count = 0;
 
 
@@ -83,13 +84,12 @@ struct strConfig {
 //####################################################################
 void WriteLog(String msg, boolean new_line = false)
 {
-  if (web_log_message_count == 40) {
-    for ( int i = 1; i < 40;  ++i ) {
+  if (web_log_message_count == NUM_WEB_LOG_MESSAGES) {
+    for ( int i = 1; i < NUM_WEB_LOG_MESSAGES;  ++i ) {
       web_log_message[i - 1] = web_log_message[i];
     }
-    web_log_message[39] = "";
-    web_log_message[40] = "";
-    web_log_message_count = 39;
+    web_log_message[NUM_WEB_LOG_MESSAGES-1] = "";
+    web_log_message_count--;
   }
 
   if (new_line == true) {
