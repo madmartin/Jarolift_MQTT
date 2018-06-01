@@ -19,6 +19,8 @@
 // API call to get data or execute commands via WebIf
 //####################################################################
 void html_api(){
+  String mqtt_devicetopic_new = ""; // needed to figure out if the devicetopic has been changed
+
   if (server.args() > 0 )
   {
     // get server args from HTML POST
@@ -37,7 +39,7 @@ void html_api(){
       if (server.argName(i) == "mqtt_broker_client_id") config.mqtt_broker_client_id  = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_username") config.mqtt_broker_username    = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_devicetopic") config.mqtt_devicetopic            = urldecode(server.arg(i));
+      if (server.argName(i) == "mqtt_devicetopic") mqtt_devicetopic_new               = urldecode(server.arg(i));
 
       if (server.argName(i) == "master_msb") config.master_msb = urldecode(server.arg(i));
       if (server.argName(i) == "master_lsb") config.master_lsb = urldecode(server.arg(i));
@@ -81,11 +83,24 @@ void html_api(){
             }
          }
          server.send ( 200, "text/plain", values );
-      }else if (cmd == "save"){
-         WriteConfig();
-         server.send ( 200, "text/plain", "Configuration has been saved. System is restarting. Please refresh manually in about 30 seconds." );
-         delay(500);
-         ESP.restart();
+      } else if (cmd == "save") {
+        // check if mqtt_devicetopic was changed
+        if (mqtt_devicetopic_new != config.mqtt_devicetopic) {
+          // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
+          WriteLog("[CFG ] - devicetopic changed, gracefully disconnect from mqtt server", true);
+          // first we send an empty message that overwrites the retained "Online" message
+          String willTopicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
+          mqtt_client.publish(willTopicOld.c_str(), "", true);
+          delay(200);
+          // finally we disconnect gracefully from the mqtt broker so the stored LWT "Offline" message is discarded
+          mqtt_client.disconnect();
+          config.mqtt_devicetopic = mqtt_devicetopic_new;
+          delay(200);
+        }
+        WriteConfig();
+        server.send ( 200, "text/plain", "Configuration has been saved. System is restarting. Please refresh manually in about 30 seconds." );
+        delay(500);
+        ESP.restart();
       }else if (cmd == "restart"){
          server.send ( 200, "text/plain", "System is restarting. Please refresh manually in about 30 seconds." );
          delay(500);
