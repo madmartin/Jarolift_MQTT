@@ -31,13 +31,14 @@ void html_api(){
       if (server.argName(i) == "channel_name") channel_name = urldecode(server.arg(i));
 
       if (server.argName(i) == "ssid") config.ssid                           = urldecode(server.arg(i));
-      if (server.argName(i) == "password") config.password                   = urldecode(server.arg(i)); 
-     
+      if (server.argName(i) == "password") config.password                   = urldecode(server.arg(i));
+
       if (server.argName(i) == "mqtt_broker_port") config.mqtt_broker_port            = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_client_id") config.mqtt_broker_client_id  = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_username") config.mqtt_broker_username    = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = urldecode(server.arg(i));  
-          
+      if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = urldecode(server.arg(i));
+      if (server.argName(i) == "mqtt_devicetopic") config.mqtt_devicetopic            = urldecode(server.arg(i));
+
       if (server.argName(i) == "master_msb") config.master_msb = urldecode(server.arg(i));
       if (server.argName(i) == "master_lsb") config.master_lsb = urldecode(server.arg(i));
       if (server.argName(i) == "serial") config.serial         = urldecode(server.arg(i));
@@ -137,6 +138,7 @@ void html_api(){
          values += "mqtt_broker_username=" + config.mqtt_broker_username + "\n";
          values += "mqtt_broker_password=" + config.mqtt_broker_password + "\n";
          values += "mqtt_broker_client_id=" + config.mqtt_broker_client_id + "\n";
+         values += "mqtt_devicetopic=" + config.mqtt_devicetopic + "\n";
          values += "master_msb=" + config.master_msb + "\n";
          values += "master_lsb=" + config.master_lsb + "\n";
          if (config.learn_mode) {values += "learn_mode=1\n";}else{values += "learn_mode=0\n";}
@@ -176,5 +178,6 @@ void html_api(){
       String status_text = "No command to execute!";
       server.send ( 200, "text/plain", status_text );   
     }
+    delay(100);
   }
 }
