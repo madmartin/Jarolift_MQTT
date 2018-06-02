@@ -179,6 +179,7 @@ void setup()
   EEPROM.begin(4096);
   Serial.begin(115200);
   delay(500);
+  InitLog();
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 

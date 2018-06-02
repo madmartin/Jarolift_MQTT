@@ -64,29 +64,42 @@ struct strConfig {
 
 
 //####################################################################
+// Initalize log message array with empty strings
+//####################################################################
+void InitLog()
+{
+  for ( int i = 0; i < NUM_WEB_LOG_MESSAGES; i++ ) {
+    web_log_message[i] = "";
+  }
+}
+
+//####################################################################
 // Function to write Log to both, serial and Weblog
 //####################################################################
 void WriteLog(String msg, boolean new_line = false)
 {
+  // check if log buffer is "full"
   if (web_log_message_count == NUM_WEB_LOG_MESSAGES) {
+    // when full then move all messages one line up
     for ( int i = 1; i < NUM_WEB_LOG_MESSAGES;  ++i ) {
       web_log_message[i - 1] = web_log_message[i];
     }
-    web_log_message[NUM_WEB_LOG_MESSAGES-1] = "";
     web_log_message_count--;
+    web_log_message[web_log_message_count] = "";
   }
 
+  if (web_log_message[web_log_message_count] == "") {
+    web_log_message[web_log_message_count] = msg;
+  } else {
+    web_log_message[web_log_message_count] += " " + msg;
+  }
   if (new_line == true) {
-    web_log_message[web_log_message_count] = web_log_message[web_log_message_count] + " " + msg;
     web_log_message_count++;
-    //web_log = web_log + " " + msg + "\n";
     Serial.println(" " + msg);
   } else {
-    web_log_message[web_log_message_count] = web_log_message[web_log_message_count] + " " + msg;
-    //web_log = web_log + " " + msg;
     Serial.print(" " + msg);
   }
-
+  delay(2);
 }
 
 //####################################################################
