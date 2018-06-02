@@ -72,14 +72,14 @@ void html_api(){
       if (cmd == "eventlog"){
          String values ="";
          String counter;
-         for( int i = 0; i < NUM_WEB_LOG_MESSAGES;  ++i ){
+         for( int i = 0; i < NUM_WEB_LOG_MESSAGES; i++ ){
             if (web_log_message[i] != ""){
                if ((i+1) < 10) {
                   counter = "0" + String(i + 1);
                }else {
                   counter = String(i + 1);
                }
-               values += counter + " -" +  web_log_message[i] + "\n";
+               values += counter + "-" + web_log_message[i] + "\n";
             }
          }
          server.send ( 200, "text/plain", values );
