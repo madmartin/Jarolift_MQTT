@@ -689,10 +689,10 @@ void cmd_up(int channel) {
   devcnt++;
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
-  WriteLog("[INFO] - command UP for channel " + (String) channel + " sent.", true);
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "0");
+  WriteLog("[INFO] - command UP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
 }
 
 //####################################################################
@@ -720,10 +720,10 @@ void cmd_down(int channel) {
   devcnt++;
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
-  WriteLog("[INFO] - command DOWN for channel " + (String) channel + " sent.", true);
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "100");
+  WriteLog("[INFO] - command DOWN for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
 }
 
 //####################################################################
@@ -752,7 +752,7 @@ void cmd_stop(int channel) {
   devcnt++;
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
-  WriteLog("[INFO] - command STOP for channel " + (String) channel + " sent.", true);
+  WriteLog("[INFO] - command STOP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
 }
 
 //####################################################################
@@ -781,10 +781,10 @@ void cmd_shade(int channel) {
   devcnt++;
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
-  WriteLog("[INFO] - command SHADE for channel " + (String) channel + " sent.", true);
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "90");
+  WriteLog("[INFO] - command SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
 }
 
 //####################################################################
@@ -817,7 +817,7 @@ void cmd_set_shade_position(int channel) {
   rx_serial_array[3] = new_serial & 0xFF;
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
-  WriteLog("[INFO] - command SET SHADE for channel " + (String) channel + " sent.", true);
+  WriteLog("[INFO] - command SET SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
   delay(2000); // Safety time to prevent accidentally erase of end-points.
 }
 
