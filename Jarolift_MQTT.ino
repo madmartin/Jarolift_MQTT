@@ -70,7 +70,7 @@ extern "C" {
 #include <stdlib.h>
 }
 
-#define PROGRAM_VERSION "v0.6-rc1"
+#define PROGRAM_VERSION "v0.6-rc2"
 
 // Number of seconds after reset during which a
 // subseqent reset will be considered a double reset.
