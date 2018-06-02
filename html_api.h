@@ -68,7 +68,7 @@ void html_api(){
       
     }
     if (cmd != "")
-    { 
+    {
       if (cmd == "eventlog"){
          String values ="";
          String counter;
@@ -110,22 +110,22 @@ void html_api(){
          web_cmd = cmd;
       }else if (cmd == "get channel name"){
          String values ="";
-         values += "channel_0=" + config.name_c0 + "\n";
-         values += "channel_1=" + config.name_c1 + "\n";
-         values += "channel_2=" + config.name_c2 + "\n";
-         values += "channel_3=" + config.name_c3 + "\n";
-         values += "channel_4=" + config.name_c4 + "\n";
-         values += "channel_5=" + config.name_c5 + "\n";
-         values += "channel_6=" + config.name_c6 + "\n";
-         values += "channel_7=" + config.name_c7 + "\n";
-         values += "channel_8=" + config.name_c8 + "\n";
-         values += "channel_9=" + config.name_c9 + "\n";
-         values += "channel_10=" + config.name_c10 + "\n";
-         values += "channel_11=" + config.name_c11 + "\n";
-         values += "channel_12=" + config.name_c12 + "\n";
-         values += "channel_13=" + config.name_c13 + "\n";
-         values += "channel_14=" + config.name_c14 + "\n";
-         values += "channel_15=" + config.name_c15 + "\n";
+         values += "channel_0=" + config.channel_name[0] + "\n";
+         values += "channel_1=" + config.channel_name[1] + "\n";
+         values += "channel_2=" + config.channel_name[2] + "\n";
+         values += "channel_3=" + config.channel_name[3] + "\n";
+         values += "channel_4=" + config.channel_name[4] + "\n";
+         values += "channel_5=" + config.channel_name[5] + "\n";
+         values += "channel_6=" + config.channel_name[6] + "\n";
+         values += "channel_7=" + config.channel_name[7] + "\n";
+         values += "channel_8=" + config.channel_name[8] + "\n";
+         values += "channel_9=" + config.channel_name[9] + "\n";
+         values += "channel_10=" + config.channel_name[10] + "\n";
+         values += "channel_11=" + config.channel_name[11] + "\n";
+         values += "channel_12=" + config.channel_name[12] + "\n";
+         values += "channel_13=" + config.channel_name[13] + "\n";
+         values += "channel_14=" + config.channel_name[14] + "\n";
+         values += "channel_15=" + config.channel_name[15] + "\n";
          server.send ( 200, "text/plain", values ); 
 
       }else if (cmd == "get config"){
@@ -161,26 +161,12 @@ void html_api(){
          server.send ( 200, "text/plain", values ); 
 
       }else if ( cmd == "set channel name"){
-         if (channel == 0) config.name_c0 = channel_name;
-         if (channel == 1) config.name_c1 = channel_name;
-         if (channel == 2) config.name_c2 = channel_name;
-         if (channel == 3) config.name_c3 = channel_name;
-         if (channel == 4) config.name_c4 = channel_name;
-         if (channel == 5) config.name_c5 = channel_name;
-         if (channel == 6) config.name_c6 = channel_name;
-         if (channel == 7) config.name_c7 = channel_name;
-         if (channel == 8) config.name_c8 = channel_name;
-         if (channel == 9) config.name_c9 = channel_name;
-         if (channel == 10) config.name_c10 = channel_name;
-         if (channel == 11) config.name_c11 = channel_name;
-         if (channel == 12) config.name_c12 = channel_name;
-         if (channel == 13) config.name_c13 = channel_name;
-         if (channel == 14) config.name_c14 = channel_name;
-         if (channel == 14) config.name_c15 = channel_name;
-         WriteConfig();  
-         String status_text = "Updating channel description to '" + channel_name + "'.";
-         server.send ( 200, "text/plain", status_text ); 
-         
+        if ((channel>= 0) && (channel<=15)) {
+          config.channel_name[channel] = channel_name;
+          WriteConfig();
+          String status_text = "Updating channel description to '" + channel_name + "'.";
+          server.send ( 200, "text/plain", status_text );
+	      }
       }else{
 
          web_cmd_channel = channel;

@@ -59,23 +59,7 @@ struct strConfig {
   boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
                               // If set to false another method for older versions of Jarolift motors is used.
   String  serial;
-  String  name_c0;
-  String  name_c1;
-  String  name_c2;
-  String  name_c3;
-  String  name_c4;
-  String  name_c5;
-  String  name_c6;
-  String  name_c7;
-  String  name_c8;
-  String  name_c9;
-  String  name_c10;
-  String  name_c11;
-  String  name_c12;
-  String  name_c13;
-  String  name_c14;
-  String  name_c15;
-
+  String  channel_name[16];
 } config;
 
 
@@ -186,22 +170,22 @@ void WriteConfig()
   WriteStringToEEPROM(450, config.mqtt_broker_password);
   WriteStringToEEPROM(1300, config.mqtt_devicetopic);
 
-  WriteStringToEEPROM(500, config.name_c0);
-  WriteStringToEEPROM(550, config.name_c1);
-  WriteStringToEEPROM(600, config.name_c2);
-  WriteStringToEEPROM(650, config.name_c3);
-  WriteStringToEEPROM(700, config.name_c4);
-  WriteStringToEEPROM(750, config.name_c5);
-  WriteStringToEEPROM(800, config.name_c6);
-  WriteStringToEEPROM(850, config.name_c7);
-  WriteStringToEEPROM(900, config.name_c8);
-  WriteStringToEEPROM(950, config.name_c9);
-  WriteStringToEEPROM(1000, config.name_c10);
-  WriteStringToEEPROM(1050, config.name_c11);
-  WriteStringToEEPROM(1100, config.name_c12);
-  WriteStringToEEPROM(1150, config.name_c13);
-  WriteStringToEEPROM(1200, config.name_c14);
-  WriteStringToEEPROM(1250, config.name_c15);
+  WriteStringToEEPROM(500, config.channel_name[0]);
+  WriteStringToEEPROM(550, config.channel_name[1]);
+  WriteStringToEEPROM(600, config.channel_name[2]);
+  WriteStringToEEPROM(650, config.channel_name[3]);
+  WriteStringToEEPROM(700, config.channel_name[4]);
+  WriteStringToEEPROM(750, config.channel_name[5]);
+  WriteStringToEEPROM(800, config.channel_name[6]);
+  WriteStringToEEPROM(850, config.channel_name[7]);
+  WriteStringToEEPROM(900, config.channel_name[8]);
+  WriteStringToEEPROM(950, config.channel_name[9]);
+  WriteStringToEEPROM(1000, config.channel_name[10]);
+  WriteStringToEEPROM(1050, config.channel_name[11]);
+  WriteStringToEEPROM(1100, config.channel_name[12]);
+  WriteStringToEEPROM(1150, config.channel_name[13]);
+  WriteStringToEEPROM(1200, config.channel_name[14]);
+  WriteStringToEEPROM(1250, config.channel_name[15]);
 
   EEPROM.commit();
   delay(1000);
@@ -264,22 +248,22 @@ boolean ReadConfig()
     config.mqtt_broker_username = ReadStringFromEEPROM(400,25);
     config.mqtt_broker_password = ReadStringFromEEPROM(450,25);
 
-    config.name_c0 = ReadStringFromEEPROM(500,25);
-    config.name_c1 = ReadStringFromEEPROM(550,25);
-    config.name_c2 = ReadStringFromEEPROM(600,25);
-    config.name_c3 = ReadStringFromEEPROM(650,25);
-    config.name_c4 = ReadStringFromEEPROM(700,25);
-    config.name_c5 = ReadStringFromEEPROM(750,25);
-    config.name_c6 = ReadStringFromEEPROM(800,25);
-    config.name_c7 = ReadStringFromEEPROM(850,25);
-    config.name_c8 = ReadStringFromEEPROM(900,25);
-    config.name_c9 = ReadStringFromEEPROM(950,25);
-    config.name_c10 = ReadStringFromEEPROM(1000,25);
-    config.name_c11 = ReadStringFromEEPROM(1050,25);
-    config.name_c12 = ReadStringFromEEPROM(1100,25);
-    config.name_c13 = ReadStringFromEEPROM(1150,25);
-    config.name_c14 = ReadStringFromEEPROM(1200,25);
-    config.name_c15 = ReadStringFromEEPROM(1250,25);
+    config.channel_name[0] = ReadStringFromEEPROM(500,25);
+    config.channel_name[1] = ReadStringFromEEPROM(550,25);
+    config.channel_name[2] = ReadStringFromEEPROM(600,25);
+    config.channel_name[3] = ReadStringFromEEPROM(650,25);
+    config.channel_name[4] = ReadStringFromEEPROM(700,25);
+    config.channel_name[5] = ReadStringFromEEPROM(750,25);
+    config.channel_name[6] = ReadStringFromEEPROM(800,25);
+    config.channel_name[7] = ReadStringFromEEPROM(850,25);
+    config.channel_name[8] = ReadStringFromEEPROM(900,25);
+    config.channel_name[9] = ReadStringFromEEPROM(950,25);
+    config.channel_name[10] = ReadStringFromEEPROM(1000,25);
+    config.channel_name[11] = ReadStringFromEEPROM(1050,25);
+    config.channel_name[12] = ReadStringFromEEPROM(1100,25);
+    config.channel_name[13] = ReadStringFromEEPROM(1150,25);
+    config.channel_name[14] = ReadStringFromEEPROM(1200,25);
+    config.channel_name[15] = ReadStringFromEEPROM(1250,25);
   }
   if (config.cfgVersion==2)
   {                                       // read config parts of version 2
@@ -327,6 +311,9 @@ void InitializeConfigData()
     config.master_lsb = "0x12345678";
     config.learn_mode = true;
     config.serial = "12345600";
+    for ( int i = 0; i <= 15; i++ ) {
+      config.channel_name[i] = "";
+    }
     WriteConfig();
     WriteLog("[INFO] - default config applied", true);
   }
