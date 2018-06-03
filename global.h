@@ -39,7 +39,6 @@ String web_log = "";                              // used to store log informati
 String web_log_message[NUM_WEB_LOG_MESSAGES];
 int web_log_message_count = 0;
 
-
 struct strConfig {
   uint16_t cfgVersion;
   String  ssid;
@@ -71,7 +70,7 @@ void InitLog()
   for ( int i = 0; i < NUM_WEB_LOG_MESSAGES; i++ ) {
     web_log_message[i] = "";
   }
-}
+} // void InitLog
 
 //####################################################################
 // Function to write Log to both, serial and Weblog
@@ -100,7 +99,7 @@ void WriteLog(String msg, boolean new_line = false)
     Serial.print(" " + msg);
   }
   delay(2);
-}
+} // void WriteLog
 
 //####################################################################
 // Function to connect to Wifi
@@ -134,7 +133,7 @@ void ConfigureWifi()
     WriteLog("[INFO] - IP address:", false);
     WriteLog(WiFi.localIP().toString(), true);
   }
-}
+} // void ConfigureWifi
 
 //################################################################
 // Function to write newest version of configuration into EEPROM
@@ -202,7 +201,7 @@ void WriteConfig()
 
   EEPROM.commit();
   delay(1000);
-}
+} // void WriteConfig
 
 //####################################################################
 // Function to read configuration from EEPROM
@@ -294,7 +293,7 @@ boolean ReadConfig()
     WriteConfig();
   }
   return true;
-}
+} // boolean ReadConfig
 
 //############################################################################
 // Function to initialize configuration, either defaults or read from EEPROM
@@ -337,10 +336,14 @@ void InitializeConfigData()
     WriteLog("[INFO] - mqtt_broker_client_id changed to "+ config.mqtt_broker_client_id, true);
     WriteConfig();
   }
-}
+} // void InitializeConfigData
 
+//####################################################################
+// Callback function for Ticker
+//####################################################################
 void Admin_Mode_Timeout()
 {
   AdminTimeOutCounter++;
-}
+} // void Admin_Mode_Timeout
+
 #endif

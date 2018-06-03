@@ -21,9 +21,9 @@
 
 
 
-//
+//####################################################################
 // Check if the Value is between 0-255
-//
+//####################################################################
 boolean checkRange(String Value)
 {
   if (Value.toInt() < 0 || Value.toInt() > 255)
@@ -34,9 +34,10 @@ boolean checkRange(String Value)
   {
     return true;
   }
-}
+} // boolean checkRange
 
 
+//####################################################################
 void WriteStringToEEPROM(int beginaddress, String string)
 {
   char  charBuf[string.length() + 1];
@@ -45,7 +46,9 @@ void WriteStringToEEPROM(int beginaddress, String string)
   {
     EEPROM.write(beginaddress + t, charBuf[t]);
   }
-}
+} // void WriteStringToEEPROM
+
+//####################################################################
 String  ReadStringFromEEPROM(int beginaddress, int MaxLen)
 {
   byte counter = 0;
@@ -61,7 +64,9 @@ String  ReadStringFromEEPROM(int beginaddress, int MaxLen)
 
   }
   return retString;
-}
+} // String  ReadStringFromEEPROM
+
+//####################################################################
 void EEPROMWritelong(int address, long value)
 {
   byte four = (value & 0xFF);
@@ -74,7 +79,9 @@ void EEPROMWritelong(int address, long value)
   EEPROM.write(address + 1, three);
   EEPROM.write(address + 2, two);
   EEPROM.write(address + 3, one);
-}
+} // void EEPROMWritelong
+
+//####################################################################
 long EEPROMReadlong(long address)
 {
   // Read the 4 bytes from the eeprom memory.
@@ -85,9 +92,11 @@ long EEPROMReadlong(long address)
 
   // Return the recomposed long by using bitshift.
   return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
-}
+} // long EEPROMReadlong
 
+//####################################################################
 // convert a single hex digit character to its integer value (from https://code.google.com/p/avr-netino/)
+//####################################################################
 unsigned char h2int(char c)
 {
   if (c >= '0' && c <= '9') {
@@ -100,8 +109,9 @@ unsigned char h2int(char c)
     return ((unsigned char)c - 'A' + 10);
   }
   return (0);
-}
+} // unsigned char h2int
 
+//####################################################################
 String urldecode(String input) // (based on https://code.google.com/p/avr-netino/)
 {
   char c;
@@ -112,22 +122,14 @@ String urldecode(String input) // (based on https://code.google.com/p/avr-netino
     c = input[t];
     if (c == '+') c = ' ';
     if (c == '%') {
-
-
       t++;
       c = input[t];
       t++;
       c = (h2int(c) << 4) | h2int(input[t]);
     }
-
     ret.concat(c);
   }
   return ret;
-
-}
-
-
-
-
+} // String urldecode
 
 #endif

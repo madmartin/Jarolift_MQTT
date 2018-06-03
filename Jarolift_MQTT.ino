@@ -131,7 +131,10 @@ int steadycnt = 0;
 
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 
-void ICACHE_RAM_ATTR measure()        // Receive Routine
+//####################################################################
+// Receive Routine
+//####################################################################
+void ICACHE_RAM_ATTR measure()
 {
   static long LineUp, LineDown, Timeout;
   long LowVal, HighVal;
@@ -169,11 +172,14 @@ void ICACHE_RAM_ATTR measure()        // Receive Routine
       hibuf[pbwrite] = HighVal;
     }
   }
-}
+} // void ICACHE_RAM_ATTR measure
 
 // The connection to the hardware chip CC1101 the RF Chip
 CC1101 cc1101;
 
+//####################################################################
+// sketch initialization routine
+//####################################################################
 void setup()
 {
   EEPROM.begin(4096);
@@ -243,17 +249,23 @@ void setup()
   // RX
   pinMode(DATAIN, INPUT_PULLUP);
   attachInterrupt(DATAIN, measure, CHANGE); // Interrupt @Inputpin
-}
+} // void setup
 
-String getContentType(String filename) { // convert the file extension to the MIME type
+//####################################################################
+// convert the file extension to the MIME type
+//####################################################################
+String getContentType(String filename) {
   if (filename.endsWith(".html")) return "text/html";
   else if (filename.endsWith(".css")) return "text/css";
   else if (filename.endsWith(".js")) return "application/javascript";
   else if (filename.endsWith(".ico")) return "image/x-icon";
   return "text/plain";
-}
+} // String getContentType
 
-bool handleFileRead(String path) { // send the right file to the client (if it exists)
+//####################################################################
+// send the right file to the client (if it exists)
+//####################################################################
+bool handleFileRead(String path) {
   Serial.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.html";         // If a folder is requested, send the index file
   String contentType = getContentType(path);            // Get the MIME type
@@ -265,9 +277,12 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
   }
   Serial.println("\tFile Not Found");
   return false;                                         // If the file doesn't exist, return false
-}
+} // bool handleFileRead
 
 
+//####################################################################
+// main loop
+//####################################################################
 void loop()
 {
 
@@ -395,18 +410,22 @@ void loop()
     }
     web_cmd = "";
   }
-}
+} // void loop
 
+//####################################################################
 // Generation of the encrypted message (Hopcode)
+//####################################################################
 int keeloq () {
   Keeloq k(device_key_msb, device_key_lsb);
   unsigned int result = (disc << 16) | devcnt;  // Append counter value to discrimination value
   dec = k.encrypt(result);
-}
+} // int keeloq
 
+//####################################################################
 // Keygen generates the device crypt key in relation to the masterkey and provided serial number.
 // Here normal key-generation is used according to 00745a_c.PDF Appendix G.
 // https://github.com/hnhkj/documents/blob/master/KEELOQ/docs/AN745/00745a_c.pdf
+//####################################################################
 int keygen () {
 
   char  charBufMSB[config.master_msb.length() + 1];
@@ -426,10 +445,13 @@ int keygen () {
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
   Serial.printf("devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
-}
+} // int keygen
 
-void senden(int repetitions) {         // Simple TX routine. Repetitions for simulate continuous button press.
-                                       // Send code two times. In case of one shutter did not "hear" the command.
+//####################################################################
+// Simple TX routine. Repetitions for simulate continuous button press.
+// Send code two times. In case of one shutter did not "hear" the command.
+//####################################################################
+void senden(int repetitions) {
   pack = (button << 60) | (new_serial << 32) | dec;
   for (int a = 0; a < repetitions; a++)
   {
@@ -463,9 +485,12 @@ void senden(int repetitions) {         // Simple TX routine. Repetitions for sim
     delaytime = micros() - delaytime;
     delayMicroseconds(16000 - delaytime);
   }
-}
+} // void senden
 
-void group_h() {                     // Sending of high_group_bits 8-16
+//####################################################################
+// Sending of high_group_bits 8-16
+//####################################################################
+void group_h() {
   for (int i = 0; i < 8; i++) {
     int out = ((disc_h >> i) & 0x1); // Bitmask to get MSB and send it first
     if (out == 0x1)
@@ -483,18 +508,24 @@ void group_h() {                     // Sending of high_group_bits 8-16
       delayMicroseconds(Lowpulse);
     }
   }
-}
+} // void group_h
 
-void frame(int l) {                  // Generates sync-pulses
+//####################################################################
+// Generates sync-pulses
+//####################################################################
+void frame(int l) {
   for (int i = 0; i < l; ++i) {
     digitalWrite(4, LOW);
     delayMicroseconds(400);          // change 28.01.2018 default highpulse
     digitalWrite(4, HIGH);
     delayMicroseconds(380);          // change 28.01.2018 default lowpulse
   }
-}
+} // void frame
 
-unsigned int reverseBits ( unsigned int a ) { // reverses incoming groupbits
+//####################################################################
+// reverses incoming groupbits
+//####################################################################
+unsigned int reverseBits ( unsigned int a ) {
   unsigned int rev = 0;
   int i;
   /* scans each bit of the input number */
@@ -510,10 +541,12 @@ unsigned int reverseBits ( unsigned int a ) { // reverses incoming groupbits
     }
   }
   return rev;
-}
+} // unsigned int reverseBits
 
-
-unsigned char reverse_byte(unsigned char x)    // Fast lookup-table for reversing the groupbits
+//####################################################################
+// Fast lookup-table for reversing the groupbits
+//####################################################################
+unsigned char reverse_byte(unsigned char x)
 {
   static const unsigned char table[] = {
     0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -550,8 +583,12 @@ unsigned char reverse_byte(unsigned char x)    // Fast lookup-table for reversin
     0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
   };
   return table[x];
-}
-int rx_keygen () {      // Calculate device code from received serial number
+} // unsigned char reverse_byte
+
+//####################################################################
+// Calculate device code from received serial number
+//####################################################################
+int rx_keygen () {
 
   char  charBufMSB[config.master_msb.length() + 1];
   config.master_msb.toCharArray(charBufMSB, config.master_msb.length() + 1);
@@ -570,9 +607,12 @@ int rx_keygen () {      // Calculate device code from received serial number
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
   Serial.printf("devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
-}
+} // int rx_keygen
 
-int rx_decoder () {                // Decoding of the hopping code
+//####################################################################
+// Decoding of the hopping code
+//####################################################################
+int rx_decoder () {
   Keeloq k(rx_device_key_msb, rx_device_key_lsb);
   unsigned int result = rx_hopcode;
   decoded = k.decrypt(result);
@@ -580,8 +620,11 @@ int rx_decoder () {                // Decoding of the hopping code
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
 
   Serial.printf(" // decoded: 0x%08x\n\n",decoded);
-}
+} // int rx_decoder
 
+//####################################################################
+// calculate RSSI value (Received Signal Strength Indicator)
+//####################################################################
 void ReadRSSI()
 {
   byte rssi = 0;
@@ -599,8 +642,11 @@ void ReadRSSI()
   }
   Serial.print("CC1101_RSSI ");
   Serial.println(value);
-}
+} // void ReadRSSI
 
+//####################################################################
+// put CC1101 to receive mode
+//####################################################################
 void enterrx() {
   cc1101.setRxState();
   delay(2);
@@ -609,8 +655,11 @@ void enterrx() {
   {
     if (micros() - rx_time > 50000) break; // Quit when marcState does not change...
   }
-}
+} // void enterrx
 
+//####################################################################
+// put CC1101 to send mode
+//####################################################################
 void entertx() {
   cc1101.setTxState();
   delay(2);
@@ -619,7 +668,7 @@ void entertx() {
   {
     if (micros() - rx_time > 50000) break; // Quit when marcState does not change...
   }
-}
+} // void entertx
 
 //####################################################################
 // Callback for incoming MQTT messages
@@ -663,7 +712,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   } else {
     WriteLog("[ERR ] - channel does not exist, choose one of 0-15", true);
   }
-}
+} // void mqtt_callback
 
 //####################################################################
 // function to move the shutter up
@@ -694,7 +743,7 @@ void cmd_up(int channel) {
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "0");
   WriteLog("[INFO] - command UP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
-}
+} // void cmd_up
 
 //####################################################################
 // function to move the shutter down
@@ -725,7 +774,7 @@ void cmd_down(int channel) {
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "100");
   WriteLog("[INFO] - command DOWN for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
-}
+} // void cmd_down
 
 //####################################################################
 // function to stop the shutter
@@ -754,7 +803,7 @@ void cmd_stop(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("[INFO] - command STOP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
-}
+} // void cmd_stop
 
 //####################################################################
 // function to move shutter to shade position
@@ -786,7 +835,7 @@ void cmd_shade(int channel) {
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "90");
   WriteLog("[INFO] - command SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
-}
+} // void cmd_shade
 
 //####################################################################
 // function to set the learn/set the shade position
@@ -820,7 +869,7 @@ void cmd_set_shade_position(int channel) {
   EEPROM.commit();
   WriteLog("[INFO] - command SET SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
   delay(2000); // Safety time to prevent accidentally erase of end-points.
-}
+} // void cmd_set_shade_position
 
 //####################################################################
 // function to put the dongle into the learn mode and
@@ -853,7 +902,7 @@ void cmd_learn(int channel) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   WriteLog("Channel learned!", true);
-}
+} // void cmd_learn
 
 //####################################################################
 // generates 16 serial numbers
@@ -870,7 +919,7 @@ void cmd_generate_serials(String sn) {
   EEPROM.put(cntadr, 0x0);
   delay(100);
   EEPROM.commit();
-}
+} // void cmd_generate_serials
 
 //####################################################################
 // reconnect function to ensure that the dongle is
@@ -914,4 +963,4 @@ void mqtt_reconnect() {
     MqttRetryCounter = 6;
     WriteLog("[ERR ] - unable to connect to MQTT broker after 5 retries. I give up!", true);
   }
-}
+} // void mqtt_reconnect
