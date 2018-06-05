@@ -89,8 +89,11 @@ void html_api(){
           // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
           WriteLog("[CFG ] - devicetopic changed, gracefully disconnect from mqtt server", true);
           // first we send an empty message that overwrites the retained "Online" message
-          String willTopicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
-          mqtt_client.publish(willTopicOld.c_str(), "", true);
+          String topicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
+          mqtt_client.publish(topicOld.c_str(), "", true);
+          // next: remove retained "devicecounter" message
+          topicOld = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
+          mqtt_client.publish(topicOld.c_str(), "", true);
           delay(200);
           // finally we disconnect gracefully from the mqtt broker so the stored LWT "Offline" message is discarded
           mqtt_client.disconnect();

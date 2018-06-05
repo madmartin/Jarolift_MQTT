@@ -715,6 +715,23 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 } // void mqtt_callback
 
 //####################################################################
+// increment and store devcnt, send devcnt as mqtt state topic
+//####################################################################
+void devcnt_handler(boolean do_increment = true) {
+  if (do_increment)
+    devcnt++;
+  EEPROM.put(cntadr, devcnt);
+  EEPROM.commit();
+  if (mqtt_client.connected()) {
+    String Topic = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
+    const char * msg = Topic.c_str();
+    char devcntstr[10];
+    itoa(devcnt, devcntstr, 10);
+    mqtt_client.publish(msg, devcntstr, true);
+  }
+} // void devcnt_handler
+
+//####################################################################
 // function to move the shutter up
 //####################################################################
 void cmd_up(int channel) {
@@ -736,13 +753,11 @@ void cmd_up(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  devcnt++;
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "0");
   WriteLog("[INFO] - command UP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  devcnt_handler();
 } // void cmd_up
 
 //####################################################################
@@ -767,13 +782,11 @@ void cmd_down(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  devcnt++;
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "100");
   WriteLog("[INFO] - command DOWN for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  devcnt_handler();
 } // void cmd_down
 
 //####################################################################
@@ -798,11 +811,8 @@ void cmd_stop(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-
-  devcnt++;
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
   WriteLog("[INFO] - command STOP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  devcnt_handler();
 } // void cmd_stop
 
 //####################################################################
@@ -827,14 +837,11 @@ void cmd_shade(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-
-  devcnt++;
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
   String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
   const char * msg = Topic.c_str();
   mqtt_client.publish(msg, "90");
   WriteLog("[INFO] - command SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  devcnt_handler();
 } // void cmd_shade
 
 //####################################################################
@@ -859,15 +866,13 @@ void cmd_set_shade_position(int channel) {
     enterrx();
     delay(300);
   }
-
   rx_function = 0x6;
   rx_serial_array[0] = (new_serial >> 24) & 0xFF;
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
   WriteLog("[INFO] - command SET SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  devcnt_handler(false);
   delay(2000); // Safety time to prevent accidentally erase of end-points.
 } // void cmd_set_shade_position
 
@@ -879,8 +884,10 @@ void cmd_learn(int channel) {
   WriteLog("[INFO] - putting channel " +  (String) channel + " into learn mode ...", false);
   new_serial = EEPROM.get(adresses[channel], new_serial);
   EEPROM.get(cntadr, devcnt);
-  if (config.learn_mode == true) button = 0xA; // Regular learn method. Up+Down followd by Stop.
-  else button = 0x1;                           // New learn method. Try if regular version does not work.
+  if (config.learn_mode == true)
+    button = 0xA;                           // Regular learn method. Up+Down followd by Stop.
+  else
+    button = 0x1;                           // New learn method. Try if regular version does not work.
   disc_l = disc_low[channel] ;
   disc_h = disc_high[channel];
   disc = (disc_l << 8) | serials[channel];
@@ -899,8 +906,7 @@ void cmd_learn(int channel) {
     enterrx();
     devcnt++;
   }
-  EEPROM.put(cntadr, devcnt);
-  EEPROM.commit();
+  devcnt_handler(false);
   WriteLog("Channel learned!", true);
 } // void cmd_learn
 
@@ -916,9 +922,9 @@ void cmd_generate_serials(String sn) {
     EEPROM.put(adresses[i], z);   // Serial 4Bytes
     z++;
   }
-  EEPROM.put(cntadr, 0x0);
+  devcnt = 0;
+  devcnt_handler(false);
   delay(100);
-  EEPROM.commit();
 } // void cmd_generate_serials
 
 //####################################################################
