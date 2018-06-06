@@ -90,17 +90,18 @@ void WriteLog(String msg, boolean new_line = false)
   }
 
   if (web_log_message[web_log_message_count] == "") {
-    web_log_message[web_log_message_count] = msg;
+    long uptime = millis() / 1000;
+    web_log_message[web_log_message_count] = (String)uptime + " " + msg;
+    Serial.print((String)uptime + " " + msg);
   } else {
     web_log_message[web_log_message_count] += " " + msg;
+    Serial.print(" " + msg);
   }
   if (new_line == true) {
     web_log_message_count++;
-    Serial.println(" " + msg);
-  } else {
-    Serial.print(" " + msg);
+    Serial.println();
   }
-  delay(2);
+  yield();
 } // void WriteLog
 
 //####################################################################
