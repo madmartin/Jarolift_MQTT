@@ -240,9 +240,11 @@ void setup()
   tkSecond.attach(1, Admin_Mode_Timeout);
 
   // configure MQTT client
-  mqtt_client.setServer(IPAddress(config.mqtt_broker_addr[0], config.mqtt_broker_addr[1], config.mqtt_broker_addr[2],
-                        config.mqtt_broker_addr[3] ), config.mqtt_broker_port.toInt()); // point to MQTT broker
+  mqtt_client.setServer(IPAddress(config.mqtt_broker_addr[0], config.mqtt_broker_addr[1],
+                                  config.mqtt_broker_addr[2], config.mqtt_broker_addr[3]),
+                        config.mqtt_broker_port.toInt());
   mqtt_client.setCallback(mqtt_callback);   // define Handler for incoming messages
+  mqttLastConnectAttempt = 0;
 
   pinMode(4, OUTPUT); // TX Pin
 
@@ -374,12 +376,23 @@ void loop()
   }
 
   // establish connection to MQTT broker
-  if (WiFi.status () == WL_CONNECTED) {
+  if (WiFi.status() == WL_CONNECTED) {
     if (!mqtt_client.connected()) {
-      mqtt_reconnect();
+      // calculate time since last connection attempt
+      long now = millis();
+      // possible values of mqttLastReconnectAttempt:
+      // 0  => never attempted to connect
+      // >0 => at least one connect attempt was made
+      if ((mqttLastConnectAttempt == 0) || (now - mqttLastConnectAttempt > MQTT_Reconnect_Interval)) {
+        mqttLastConnectAttempt = now;
+        // attempt to connect
+        mqtt_connect();
+      }
+    } else {
+      // client is connected, call the mqtt loop
+      mqtt_client.loop();
     }
   }
-  mqtt_client.loop();
 
   // run a CMD whenever a web_cmd event has been triggered
   if (web_cmd != "") {
@@ -928,12 +941,10 @@ void cmd_generate_serials(String sn) {
 } // void cmd_generate_serials
 
 //####################################################################
-// reconnect function to ensure that the dongle is
-// connected to MQTT broker
+// connect function for MQTT broker
+// called from the main loop
 //####################################################################
-void mqtt_reconnect() {
-  // retry as long as the connection is established
-
+boolean mqtt_connect() {
   const char* client_id = config.mqtt_broker_client_id.c_str();
   const char* username = config.mqtt_broker_username.c_str();
   const char* password = config.mqtt_broker_password.c_str();
@@ -943,30 +954,16 @@ void mqtt_reconnect() {
   const char* willMessage = "Offline";           // LWT message says "Offline"
   String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/shutter/+";
 
-  while (!mqtt_client.connected() && MqttRetryCounter < 5) {
-    WriteLog("[INFO] - trying to connect to MQTT broker . . .", false);
-    // try to connect to MQTT
-    if (mqtt_client.connect(client_id, username, password, willTopic.c_str(), willQos, willRetain, willMessage )) {
-      MqttRetryCounter = 0;
-      WriteLog("success!", true);
-      // subscribe the needed topics
-      mqtt_client.subscribe(subscribeString.c_str());
-      // publish telemetry message "we are online now"
-      mqtt_client.publish(willTopic.c_str(), "Online", true);
-
-      // retry if something went trong
-    } else {
-      WriteLog("error, rc =", false);
-      WriteLog((String) mqtt_client.state(), false);
-      WriteLog("[INFO] - retry in 5 seconds", true);
-      // wait 5 seconds for the next retry
-      delay(5000);
-      MqttRetryCounter ++;
-    }
+  WriteLog("[INFO] - trying to connect to MQTT broker . . .", false);
+  // try to connect to MQTT
+  if (mqtt_client.connect(client_id, username, password, willTopic.c_str(), willQos, willRetain, willMessage )) {
+    WriteLog("success!", true);
+    // subscribe the needed topics
+    mqtt_client.subscribe(subscribeString.c_str());
+    // publish telemetry message "we are online now"
+    mqtt_client.publish(willTopic.c_str(), "Online", true);
+  } else {
+    WriteLog("failed, rc ="+ (String)mqtt_client.state(), true);
   }
-
-  if (!mqtt_client.connected() && MqttRetryCounter == 5) {
-    MqttRetryCounter = 6;
-    WriteLog("[ERR ] - unable to connect to MQTT broker after 5 retries. I give up!", true);
-  }
-} // void mqtt_reconnect
+  return mqtt_client.connected();
+} // boolean mqtt_connect

@@ -21,10 +21,12 @@
 #define ACCESS_POINT_NAME      "Jarolift-Dongle"  // default SSID for Admin-Mode
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
+#define MQTT_Reconnect_Interval 30000             // try connect to MQTT server very X milliseconds
 
 ESP8266WebServer server(80);                      // The Webserver
 WiFiClient espClient;
-PubSubClient mqtt_client(espClient);
+PubSubClient mqtt_client(espClient);              // mqtt client instance
+long mqttLastConnectAttempt = 0;                  // timepoint of last connect attempt in milliseconds
 
 boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoint for configuration
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
