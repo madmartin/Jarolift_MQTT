@@ -2,7 +2,14 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
-##### 2018-06-01 v0.6
+
+##### 2018-06-05 v0.6-rc2
+* send device counter to MQTT server after each command
+* add subdirectory /doc for misc documentation, beginning with file describing EEPROM memory layout
+* implement new connect logic for MQTT, which makes an effective reconnect
+* add "uptime in seconds" timestamp to log
+
+##### 2018-06-01 v0.6-rc1
 * versionize config data in EEPROM
 * introduce configurable mqtt devicetopic
 * fix LWT message handling when devicetopic is reconfigured
