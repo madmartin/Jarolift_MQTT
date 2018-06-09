@@ -763,7 +763,7 @@ void devcnt_handler(boolean do_increment = true) {
 //####################################################################
 // send status via mqtt
 //####################################################################
-void mqtt_send_percent_closed_state(int channelNum, int percent) {
+void mqtt_send_percent_closed_state(int channelNum, int percent, String command) {
   if (percent>100) percent = 100;
   if (percent<0) percent = 0;
   if (mqtt_client.connected()) {
@@ -773,7 +773,7 @@ void mqtt_send_percent_closed_state(int channelNum, int percent) {
     const char * msg = Topic.c_str();
     mqtt_client.publish(msg, percentstr);
   }
-  WriteLog("[INFO] - command UP for channel "+ (String)channelNum+ " ("+ config.channel_name[channelNum]+ ") sent.", true);
+  WriteLog("[INFO] - command "+ command+ " for channel "+ (String)channelNum+ " ("+ config.channel_name[channelNum]+ ") sent.", true);
 } // void mqtt_send_percent_closed_state
 
 //####################################################################
@@ -798,7 +798,7 @@ void cmd_up(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  mqtt_send_percent_closed_state(channel, 0);
+  mqtt_send_percent_closed_state(channel, 0, "UP");
   devcnt_handler();
 } // void cmd_up
 
@@ -824,7 +824,7 @@ void cmd_down(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  mqtt_send_percent_closed_state(channel, 100);
+  mqtt_send_percent_closed_state(channel, 100, "DOWN");
   devcnt_handler();
 } // void cmd_down
 
@@ -876,7 +876,7 @@ void cmd_shade(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  mqtt_send_percent_closed_state(channel, 90);
+  mqtt_send_percent_closed_state(channel, 90, "SHADE");
   devcnt_handler();
 } // void cmd_shade
 
