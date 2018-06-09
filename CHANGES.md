@@ -2,6 +2,8 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2018-06-09 v0.6-rc2
+* add logging of WiFi connect and disconnect events. WiFi reconnect works well when compiled with ESP8266 core 2.3.0
 
 ##### 2018-06-05 v0.6-rc2
 * send device counter to MQTT server after each command

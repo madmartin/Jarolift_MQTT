@@ -129,8 +129,7 @@ Console Speed is 115200 Bit/s
 
 * after upgrade to this release, due to changes of the EEPROM memory layout the MQTT port parameter needs to be set again.
 * when Dongle looses the WLAN connection, the reconnect behaviour may not be good. There is a known problem with failing WLAN connection after a ESP restart with ESP Core 2.4.x, so better compile this project with ESP Core 2.3.0. See what other projects say about this: [#1](https://github.com/tzapu/WiFiManager/issues/532) [#2](https://github.com/arendst/Sonoff-Tasmota/wiki/What%27s-New#esp8266arduino-core-information)
-* when Dongle looses the connection to the MQTT server, reconnect behaviour may not be good. Must be improved.
-* after flashing the NodeMCU board, on the first run of the fresh flashed sketch, the restart function may not properly work, causes the NodeMCU board board to hang. On the serial monitor, you see output like
+* after flashing the NodeMCU board, on the first run of the fresh flashed sketch, any kind of restart (through WebUI or after a crash) of the ESP8266 may not properly work, causes the NodeMCU board board to hang. On the serial monitor, you see output like
 ```
 handleFileRead: /favicon.png
  [INFO] - Writing Config to EEPROM
@@ -143,6 +142,8 @@ handleFileRead: /favicon.png
 wdt reset
 ```
 * this is a hardware issue, solution: power cycle your NodeMCU after flashing, pressing the reset button is not sufficient
+
+* sometimes opening the "system" page in the WebUI causes a crash (Exception 28) of the ESP8266. The cause is not found yet.
 
 ### Contribute
 
