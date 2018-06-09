@@ -103,10 +103,12 @@ void html_api(){
         WriteConfig();
         server.send ( 200, "text/plain", "Configuration has been saved. System is restarting. Please refresh manually in about 30 seconds." );
         delay(500);
+        wifi_disconnect_log = false;
         ESP.restart();
       }else if (cmd == "restart"){
          server.send ( 200, "text/plain", "System is restarting. Please refresh manually in about 30 seconds." );
          delay(500);
+         wifi_disconnect_log = false;
          ESP.restart();
       }else if (cmd == "save and generate serials"){
          web_cmd_channel = channel;

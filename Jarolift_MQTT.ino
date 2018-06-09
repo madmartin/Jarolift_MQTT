@@ -182,10 +182,9 @@ CC1101 cc1101;
 //####################################################################
 void setup()
 {
+  InitLog();
   EEPROM.begin(4096);
   Serial.begin(115200);
-  delay(500);
-  InitLog();
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 
@@ -199,6 +198,22 @@ void setup()
   cc1101.disableAddressCheck();   // if not specified, will only display "packet received"
 
   pinMode(led_pin, OUTPUT);   // prepare LED on ESP-Chip
+
+  // callback functions for WiFi connect and disconnect
+  gotIpEventHandler = WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP& event)
+  {
+    WriteLog("[INFO] - WiFi station connected - IP: "+ WiFi.localIP().toString(), true);
+    wifi_disconnect_log = true;
+  });
+
+  disconnectedEventHandler = WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected& event)
+  {
+    if (wifi_disconnect_log) {
+      WriteLog("[INFO] - WiFi station disconnected", true);
+      // turn off logging disconnect events after first occurrence, otherwise the log is filled up
+      wifi_disconnect_log = false;
+    }
+  });
 
   // test if the WLAN SSID is on default
   // or DoubleReset detected
@@ -416,6 +431,7 @@ void loop()
     } else if (web_cmd == "save and generate serials") {
       cmd_generate_serials(config.serial);
       delay(500);
+      wifi_disconnect_log = false;
       ESP.restart();
       server.send ( 200, "text/plain", "Configuration has been saved and serial numbers has been generated. System is restarting. Please refresh manually in about 30 seconds." );
     } else {

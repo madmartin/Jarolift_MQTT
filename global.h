@@ -27,9 +27,11 @@ ESP8266WebServer server(80);                      // The Webserver
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);              // mqtt client instance
 long mqttLastConnectAttempt = 0;                  // timepoint of last connect attempt in milliseconds
+WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
 
 boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoint for configuration
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
+boolean wifi_disconnect_log = true;               // Flag to avoid repeated logging of disconnect events
 int led_pin = 2;                                  // GPIO Pin number for LED
 Ticker tkSecond;                                  // Second - Timer for Updating Datetime Structure
 
@@ -101,7 +103,6 @@ void WriteLog(String msg, boolean new_line = false)
     web_log_message_count++;
     Serial.println();
   }
-  yield();
 } // void WriteLog
 
 //####################################################################
@@ -109,32 +110,13 @@ void WriteLog(String msg, boolean new_line = false)
 //####################################################################
 void ConfigureWifi()
 {
-  WriteLog("[INFO] - connecting to", false);
-  WriteLog(config.ssid, false);
+  WriteLog("[INFO] - WiFi connecting to", false);
+  WriteLog(config.ssid, true);
   WiFi.mode(WIFI_STA);
   WiFi.begin (config.ssid.c_str(), config.password.c_str());
   if (!config.dhcp)
   {
     WiFi.config(IPAddress(config.ip[0], config.ip[1], config.ip[2], config.ip[3] ),  IPAddress(config.gateway[0], config.gateway[1], config.gateway[2], config.gateway[3] ) , IPAddress(config.netmask[0], config.netmask[1], config.netmask[2], config.netmask[3] ));
-  }
-
-  int timeout_count  = 0;
-  while (WiFi.status () != WL_CONNECTED) {
-    if (timeout_count > 30)
-    {
-      break;
-    }
-    timeout_count ++;
-    delay(500);
-    WriteLog(".", false);
-  }
-  if (timeout_count > 10)
-  {
-    WriteLog("failed!", true);
-  } else {
-    WriteLog("connected!", true);
-    WriteLog("[INFO] - IP address:", false);
-    WriteLog(WiFi.localIP().toString(), true);
   }
 } // void ConfigureWifi
 
