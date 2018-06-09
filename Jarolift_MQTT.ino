@@ -761,6 +761,22 @@ void devcnt_handler(boolean do_increment = true) {
 } // void devcnt_handler
 
 //####################################################################
+// send status via mqtt
+//####################################################################
+void mqtt_send_percent_closed_state(int channelNum, int percent) {
+  if (percent>100) percent = 100;
+  if (percent<0) percent = 0;
+  if (mqtt_client.connected()) {
+    char percentstr[4];
+    itoa(percent, percentstr, 10);
+    String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channelNum;
+    const char * msg = Topic.c_str();
+    mqtt_client.publish(msg, percentstr);
+  }
+  WriteLog("[INFO] - command UP for channel "+ (String)channelNum+ " ("+ config.channel_name[channelNum]+ ") sent.", true);
+} // void mqtt_send_percent_closed_state
+
+//####################################################################
 // function to move the shutter up
 //####################################################################
 void cmd_up(int channel) {
@@ -782,10 +798,7 @@ void cmd_up(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
-  const char * msg = Topic.c_str();
-  mqtt_client.publish(msg, "0");
-  WriteLog("[INFO] - command UP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  mqtt_send_percent_closed_state(channel, 0);
   devcnt_handler();
 } // void cmd_up
 
@@ -811,10 +824,7 @@ void cmd_down(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
-  const char * msg = Topic.c_str();
-  mqtt_client.publish(msg, "100");
-  WriteLog("[INFO] - command DOWN for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  mqtt_send_percent_closed_state(channel, 100);
   devcnt_handler();
 } // void cmd_down
 
@@ -866,10 +876,7 @@ void cmd_shade(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channel;
-  const char * msg = Topic.c_str();
-  mqtt_client.publish(msg, "90");
-  WriteLog("[INFO] - command SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  mqtt_send_percent_closed_state(channel, 90);
   devcnt_handler();
 } // void cmd_shade
 
