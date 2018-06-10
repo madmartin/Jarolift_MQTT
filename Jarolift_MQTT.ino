@@ -188,18 +188,9 @@ void setup()
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 
-  InitializeConfigData();
-
-  // initialize the transceiver chip
-  WriteLog("[INFO] - initializing the CC1101 Transceiver. If you get stuck here, it is probably not connected.", true);
-  cc1101.init();
-  cc1101.setSyncWord(syncWord, false);
-  cc1101.setCarrierFreq(CFREQ_433);
-  cc1101.disableAddressCheck();   // if not specified, will only display "packet received"
-
-  pinMode(led_pin, OUTPUT);   // prepare LED on ESP-Chip
-
   // callback functions for WiFi connect and disconnect
+  // placed as early as possible in the setup() function to get the connect
+  // message catched when the WiFi connect is really fast
   gotIpEventHandler = WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP& event)
   {
     WriteLog("[INFO] - WiFi station connected - IP: "+ WiFi.localIP().toString(), true);
@@ -215,6 +206,17 @@ void setup()
     }
   });
 
+  InitializeConfigData();
+
+  // initialize the transceiver chip
+  WriteLog("[INFO] - initializing the CC1101 Transceiver. If you get stuck here, it is probably not connected.", true);
+  cc1101.init();
+  cc1101.setSyncWord(syncWord, false);
+  cc1101.setCarrierFreq(CFREQ_433);
+  cc1101.disableAddressCheck();   // if not specified, will only display "packet received"
+
+  pinMode(led_pin, OUTPUT);   // prepare LED on ESP-Chip
+
   // test if the WLAN SSID is on default
   // or DoubleReset detected
   if ((drd.detectDoubleReset()) || (config.ssid == "MYSSID")) {
@@ -229,9 +231,9 @@ void setup()
   {
     WriteLog("[WARN] - Admin-Mode enabled!", true);
     WriteLog("[WARN] - starting soft-AP ... ", false);
+    wifi_disconnect_log = false;
     WiFi.mode(WIFI_AP);
     WriteLog(WiFi.softAP(ACCESS_POINT_NAME, ACCESS_POINT_PASSWORD) ? "Ready" : "Failed!", true);
-    //WiFi.setAutoConnect(false);
     WriteLog("[WARN] - Access Point <" + (String)ACCESS_POINT_NAME + "> activated. WPA password is "+ ACCESS_POINT_PASSWORD, true);
     WriteLog("[WARN] - you have " + (String)AdminTimeOut + " seconds time to connect and configure!", true);
     WriteLog("[WARN] - configuration webserver is http://" + WiFi.softAPIP().toString(), true);
