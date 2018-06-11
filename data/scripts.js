@@ -110,14 +110,14 @@ function getConfig(){
       var lines = this.responseText.split('\n');
       for (var j = 0; j < lines.length; j++) {
         var result = lines[j].split('=');
-        if (result[1] != "" && result[0] != ""){
-          if (result[0] == "dhcp" || result[0] == "learn_mode"){
-            if (result[1] == 1){
-              document.getElementById(result[0]).checked = true;
-            }else{
-              document.getElementById(result[0]).checked = false;
+        if (result[1] != "" && result[0] != "") {
+          if (result[0] == "checkbox") {
+            if (result[2] == 1) {
+              document.getElementById(result[1]).checked = true;
+            } else {
+              document.getElementById(result[1]).checked = false;
             }
-          }else{
+          } else {
             document.getElementById(result[0]).value = result[1];
           }
         }
@@ -156,7 +156,7 @@ function writeConfig(cmd){
 	http.send("cmd=" + cmd + "&" + params);
 
 }
-      
+
 
 
 

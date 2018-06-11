@@ -65,7 +65,7 @@ void html_api(){
       
       if (server.argName(i) == "dhcp") if (urldecode(server.arg(i)) == "true") { config.dhcp = true; } else { config.dhcp = false; };
       if (server.argName(i) == "learn_mode") if (urldecode(server.arg(i)) == "true") { config.learn_mode = true; } else { config.learn_mode = false; };
-      
+
     }
     if (cmd != "")
     {
@@ -137,7 +137,7 @@ void html_api(){
          String values ="";
          values += "ssid=" + config.ssid + "\n";
          values += "password=" + config.password + "\n";
-         if (config.dhcp) {values += "dhcp=1\n";}else{values += "dhcp=0\n";}
+         if (config.dhcp) {values += "checkbox=dhcp=1\n";}else{values += "checkbox=dhcp=0\n";}
          values += "ip_0=" + (String) config.ip[0] + "\n";
          values += "ip_1=" + (String) config.ip[1] + "\n";
          values += "ip_2=" + (String) config.ip[2] + "\n";
@@ -161,8 +161,11 @@ void html_api(){
          values += "mqtt_devicetopic=" + config.mqtt_devicetopic + "\n";
          values += "master_msb=" + config.master_msb + "\n";
          values += "master_lsb=" + config.master_lsb + "\n";
-         if (config.learn_mode) {values += "learn_mode=1\n";}else{values += "learn_mode=0\n";}
+         if (config.learn_mode) {values += "checkbox=learn_mode=1\n";}else{values += "checkbox=learn_mode=0\n";}
          values += "serial=" + config.serial + "\n";
+         values += "checkbox=set_and_generate_serial=0\n";
+         values += "devicecounter=" + (String)devcnt + "\n";
+         values += "checkbox=set_devicecounter=0\n";
          server.send ( 200, "text/plain", values ); 
 
       }else if ( cmd == "set channel name"){
