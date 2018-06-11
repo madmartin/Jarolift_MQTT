@@ -11,22 +11,22 @@ Current layout:
 Offset  Offset  Length      Content
 Decimal Hex     in Byte     Description
 =================================================================================
-5       0x005   6           channel[0] serialnumber - highest 6 byte of uint64_t
-11      0x00b   6           channel[1] serialnumber - highest 6 byte of uint64_t
-17      0x011   6           channel[2] serialnumber - highest 6 byte of uint64_t
-23      0x017   6           channel[3] serialnumber - highest 6 byte of uint64_t
-29      0x01d   6           channel[4] serialnumber - highest 6 byte of uint64_t
-35      0x023   6           channel[5] serialnumber - highest 6 byte of uint64_t
-41      0x029   6           channel[6] serialnumber - highest 6 byte of uint64_t
-47      0x02f   6           channel[7] serialnumber - highest 6 byte of uint64_t
-53      0x035   6           channel[8] serialnumber - highest 6 byte of uint64_t
-59      0x03b   6           channel[9] serialnumber - highest 6 byte of uint64_t
-65      0x041   6           channel[10] serialnumber - highest 6 byte of uint64_t
-71      0x047   6           channel[11] serialnumber - highest 6 byte of uint64_t
-77      0x04d   6           channel[12] serialnumber - highest 6 byte of uint64_t
-85      0x055   6           channel[13] serialnumber - highest 6 byte of uint64_t
-91      0x05b   6           channel[14] serialnumber - highest 6 byte of uint64_t
-97      0x061   6           channel[15] serialnumber - highest 6 byte of uint64_t
+5       0x005   3           channel[0] serialnumber - highest 3 byte of uint32_t
+11      0x00b   3           channel[1] serialnumber - highest 3 byte of uint32_t
+17      0x011   3           channel[2] serialnumber - highest 3 byte of uint32_t
+23      0x017   3           channel[3] serialnumber - highest 3 byte of uint32_t
+29      0x01d   3           channel[4] serialnumber - highest 3 byte of uint32_t
+35      0x023   3           channel[5] serialnumber - highest 3 byte of uint32_t
+41      0x029   3           channel[6] serialnumber - highest 3 byte of uint32_t
+47      0x02f   3           channel[7] serialnumber - highest 3 byte of uint32_t
+53      0x035   3           channel[8] serialnumber - highest 3 byte of uint32_t
+59      0x03b   3           channel[9] serialnumber - highest 3 byte of uint32_t
+65      0x041   3           channel[10] serialnumber - highest 3 byte of uint32_t
+71      0x047   3           channel[11] serialnumber - highest 3 byte of uint32_t
+77      0x04d   3           channel[12] serialnumber - highest 3 byte of uint32_t
+85      0x055   3           channel[13] serialnumber - highest 3 byte of uint32_t
+91      0x05b   3           channel[14] serialnumber - highest 3 byte of uint32_t
+97      0x061   3           channel[15] serialnumber - highest 3 byte of uint32_t
                             
 110     0x06e   int         cntadr Where the 16Bit counter is stored
                             is inizialized with "0" when generating new serial numbers
@@ -45,7 +45,7 @@ Decimal Hex     in Byte     Description
 270     0x10e   10          master_msb (as string)
 330     0x14a   10          master_lsb (as string)
 350     0x15e   1 boolean   learn_mode true=1 => new learn_mode
-366     0x16e   10          serial (as string)
+366     0x16e   9           serial (as string)
 375     0x177   25          mqtt_broker_client_id
 400     0x190   25          mqtt_broker_username
 450     0x1c2   25          mqtt_broker_password
@@ -77,7 +77,9 @@ Decimal Hex     in Byte     Description
 - config detection sequence changed from "CFG" to "Cfg"
 - added config version number (uint16_t) at offset 123
 - added mqtt_devicetopic string(20) offset 1300
-
+- serial string(9) offset 366
+  - either decimal full serial number
+  - or (when leading chars are "0x") hex serial prefix 6 digit/3 byte
 
 
 
