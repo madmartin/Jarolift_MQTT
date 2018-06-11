@@ -205,6 +205,7 @@ void setup()
   });
 
   InitializeConfigData();
+  EEPROM.get(cntadr, devcnt);
 
   // initialize the transceiver chip
   WriteLog("[INFO] - initializing the CC1101 Transceiver. If you get stuck here, it is probably not connected.", true);
