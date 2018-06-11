@@ -88,7 +88,6 @@ byte syncWord            = 199;
 int device_key_msb       = 0x0; // stores cryptkey MSB
 int device_key_lsb       = 0x0; // stores cryptkey LSB
 uint64_t button          = 0x0; // 1000=0x8 up, 0100=0x4 stop, 0010=0x2 down, 0001=0x1 learning
-unsigned short devcnt    = 0x0; // Initial 16Bit countervalue, will be stored in EEPROM and incremented once every time a command is send
 int disc                 = 0x0;
 uint32_t dec             = 0;   // stores the 32Bit encrypted code
 uint64_t pack            = 0;   // Contains data to send.
@@ -99,7 +98,6 @@ byte disc_l              = 0;
 byte disc_h              = 0;
 byte adresses[]          = {5, 11, 17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 85, 91, 97 }; // Defines start addresses of channel data stored in EEPROM 4bytes s/n.
 uint64_t new_serial      = 0;
-int cntadr               = 110;  // Where the 16Bit counter is stored.
 byte marcState;
 int MqttRetryCounter = 0;                 // Counter for MQTT reconnect
 
