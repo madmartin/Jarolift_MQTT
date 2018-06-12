@@ -429,6 +429,12 @@ void loop()
       cmd_shade(web_cmd_channel);
     } else if (web_cmd == "learn") {
       cmd_learn(web_cmd_channel);
+    } else if (web_cmd == "save") {
+      Serial.println("main loop: in web_cmd save");
+      cmd_save_config();
+    } else if (web_cmd == "restart") {
+      Serial.println("main loop: in web_cmd restart");
+      cmd_restart();
     } else if (web_cmd == "save and generate serials") {
       cmd_generate_serials(config.serial);
       delay(500);
@@ -946,6 +952,42 @@ void cmd_learn(int channel) {
   devcnt_handler(false);
   WriteLog("Channel learned!", true);
 } // void cmd_learn
+
+//####################################################################
+// webUI save config function
+//####################################################################
+void cmd_save_config() {
+  Serial.println("in web_cmd save");
+  // check if mqtt_devicetopic was changed
+  if (config.mqtt_devicetopic_new != config.mqtt_devicetopic) {
+    // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
+    WriteLog("[CFG ] - devicetopic changed, gracefully disconnect from mqtt server", true);
+    // first we send an empty message that overwrites the retained "Online" message
+    String topicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
+    mqtt_client.publish(topicOld.c_str(), "", true);
+    // next: remove retained "devicecounter" message
+    topicOld = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
+    mqtt_client.publish(topicOld.c_str(), "", true);
+    delay(200);
+    // finally we disconnect gracefully from the mqtt broker so the stored LWT "Offline" message is discarded
+    mqtt_client.disconnect();
+    config.mqtt_devicetopic = config.mqtt_devicetopic_new;
+    delay(200);
+  }
+  WriteConfig();
+  server.send ( 200, "text/plain", "Configuration has been saved, system is restarting. Please refresh manually in about 30 seconds.." );
+  cmd_restart();
+} // void cmd_save_config
+
+//####################################################################
+// webUI restart function
+//####################################################################
+void cmd_restart() {
+  server.send ( 200, "text/plain", "System is restarting. Please refresh manually in about 30 seconds." );
+  delay(500);
+  wifi_disconnect_log = false;
+  ESP.restart();
+} // void cmd_restart
 
 //####################################################################
 // generates 16 serial numbers

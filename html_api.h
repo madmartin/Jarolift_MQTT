@@ -19,14 +19,17 @@
 // API call to get data or execute commands via WebIf
 //####################################################################
 void html_api(){
-  String mqtt_devicetopic_new = ""; // needed to figure out if the devicetopic has been changed
-
+  Serial.printf("html_api server.args()=%d \n",server.args());
   if (server.args() > 0 )
   {
     // get server args from HTML POST
     String cmd = "";
     int channel;
     String channel_name = "";
+    for ( uint8_t i = 0; i < server.args(); i++ ) {
+      Serial.printf("server.argName(%d) == %s\n",i,server.argName(i).c_str());
+      Serial.printf(" urldecode: %s\n",urldecode(server.arg(i)).c_str());
+    }
     for ( uint8_t i = 0; i < server.args(); i++ ) {
       if (server.argName(i) == "cmd") cmd         = urldecode(server.arg(i));
       if (server.argName(i) == "channel") channel = server.arg(i).toInt();
@@ -39,11 +42,10 @@ void html_api(){
       if (server.argName(i) == "mqtt_broker_client_id") config.mqtt_broker_client_id  = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_username") config.mqtt_broker_username    = urldecode(server.arg(i));
       if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_devicetopic") mqtt_devicetopic_new               = urldecode(server.arg(i));
+      if (server.argName(i) == "mqtt_devicetopic") config.mqtt_devicetopic_new               = urldecode(server.arg(i));
 
       if (server.argName(i) == "master_msb") config.master_msb = urldecode(server.arg(i));
       if (server.argName(i) == "master_lsb") config.master_lsb = urldecode(server.arg(i));
-      if (server.argName(i) == "serial") config.serial         = urldecode(server.arg(i));
         
       if (server.argName(i) == "ip_0") if (checkRange(server.arg(i)))   config.ip[0] =  server.arg(i).toInt();
       if (server.argName(i) == "ip_1") if (checkRange(server.arg(i)))   config.ip[1] =  server.arg(i).toInt();
@@ -63,10 +65,19 @@ void html_api(){
       if (server.argName(i) == "mqtt_broker_addr_2") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[2] =  server.arg(i).toInt();
       if (server.argName(i) == "mqtt_broker_addr_3") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[3] =  server.arg(i).toInt();
       
-      if (server.argName(i) == "dhcp") if (urldecode(server.arg(i)) == "true") { config.dhcp = true; } else { config.dhcp = false; };
-      if (server.argName(i) == "learn_mode") if (urldecode(server.arg(i)) == "true") { config.learn_mode = true; } else { config.learn_mode = false; };
-
-    }
+      if (server.argName(i) == "dhcp")
+        config.dhcp = (urldecode(server.arg(i)) == "true");
+      if (server.argName(i) == "learn_mode")
+        config.learn_mode = (urldecode(server.arg(i)) == "true");
+      if (server.argName(i) == "set_and_generate_serial")
+        config.set_and_generate_serial = (urldecode(server.arg(i)) == "true");
+      if (server.argName(i) == "serial")
+        config.new_serial = urldecode(server.arg(i));
+      if (server.argName(i) == "set_devicecounter")
+        config.set_devicecounter = (urldecode(server.arg(i)) == "true");
+      if (server.argName(i) == "devicecounter")
+        config.new_devicecounter = urldecode(server.arg(i));
+    } // for
     if (cmd != "")
     {
       if (cmd == "eventlog"){
@@ -84,35 +95,11 @@ void html_api(){
          }
          server.send ( 200, "text/plain", values );
       } else if (cmd == "save") {
-        // check if mqtt_devicetopic was changed
-        if (mqtt_devicetopic_new != config.mqtt_devicetopic) {
-          // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
-          WriteLog("[CFG ] - devicetopic changed, gracefully disconnect from mqtt server", true);
-          // first we send an empty message that overwrites the retained "Online" message
-          String topicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
-          mqtt_client.publish(topicOld.c_str(), "", true);
-          // next: remove retained "devicecounter" message
-          topicOld = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
-          mqtt_client.publish(topicOld.c_str(), "", true);
-          delay(200);
-          // finally we disconnect gracefully from the mqtt broker so the stored LWT "Offline" message is discarded
-          mqtt_client.disconnect();
-          config.mqtt_devicetopic = mqtt_devicetopic_new;
-          delay(200);
-        }
-        WriteConfig();
-        server.send ( 200, "text/plain", "Configuration has been saved. System is restarting. Please refresh manually in about 30 seconds." );
-        delay(500);
-        wifi_disconnect_log = false;
-        ESP.restart();
+        // handled in main loop
+        web_cmd = cmd;
       }else if (cmd == "restart"){
-         server.send ( 200, "text/plain", "System is restarting. Please refresh manually in about 30 seconds." );
-         delay(500);
-         wifi_disconnect_log = false;
-         ESP.restart();
-      }else if (cmd == "save and generate serials"){
-         web_cmd_channel = channel;
-         web_cmd = cmd;
+        // handled in main loop
+        web_cmd = cmd;
       }else if (cmd == "get channel name"){
          String values ="";
          values += "channel_0=" + config.channel_name[0] + "\n";
