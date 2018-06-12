@@ -64,8 +64,15 @@ struct strConfig {
   String  master_lsb;
   boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
                               // If set to false another method for older versions of Jarolift motors is used.
-  String  serial;
+  String  serial;             // starting serial number as string
+  uint32_t serial_number;     // starting serial number as integer
   String  channel_name[16];
+  // temporary values, for web ui, not to store in EEPROM
+  String mqtt_devicetopic_new = ""; // needed to figure out if the devicetopic has been changed
+  String new_serial = "";
+  String new_devicecounter = "";
+  boolean set_and_generate_serial = false;
+  boolean set_devicecounter = false;
 } config;
 
 
@@ -281,6 +288,29 @@ boolean ReadConfig()
     WriteLog("[INFO] - config update to version 2 - mqtt_devicetopic set to default", true);
     WriteConfig();
   }
+
+  // check is config.serial is hexadecimal
+  // if necessary, convert decimal to hexadecimal
+  Serial.println("config.serial: "+ config.serial);
+  if ((config.serial[0] == '0') && (config.serial[1] == 'x')) {
+    Serial.println("config.serial is hex");
+    // string serial stores only highest 3 bytes,
+    // add lowest byte with a shift operation for config.serial_number
+    config.serial_number = strtol(config.serial.c_str(), NULL, 16) << 8;
+    Serial.printf("config.serial: %08u = 0x%08x \n", config.serial_number, config.serial_number);
+  } else {
+    config.serial_number = strtol(config.serial.c_str(), NULL, 10);
+    // string serial stores only highest 3 bytes,
+    // remove lowest byte with a shift operation
+    char serialNumBuffer[11];
+    snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 8));
+    config.serial = serialNumBuffer;
+    Serial.printf("convert config.serial to hex: %08u = 0x%08x \n", config.serial_number, config.serial_number);
+    Serial.println("config.serial: "+ config.serial);
+    WriteLog("[INFO] - config version 2 - convert serial decimal->hexadecimal", true);
+    WriteConfig();
+  }
+
   return true;
 } // boolean ReadConfig
 
