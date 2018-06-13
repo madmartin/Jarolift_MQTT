@@ -433,12 +433,6 @@ void loop()
     } else if (web_cmd == "restart") {
       Serial.println("main loop: in web_cmd restart");
       cmd_restart();
-    } else if (web_cmd == "save and generate serials") {
-      cmd_generate_serials(config.serial);
-      delay(500);
-      wifi_disconnect_log = false;
-      ESP.restart();
-      server.send ( 200, "text/plain", "Configuration has been saved and serial numbers has been generated. System is restarting. Please refresh manually in about 30 seconds." );
     } else {
       WriteLog("[ERR ] - received unknown command from web_cmd.", true);
     }
@@ -955,7 +949,7 @@ void cmd_learn(int channel) {
 // webUI save config function
 //####################################################################
 void cmd_save_config() {
-  Serial.println("in web_cmd save");
+  WriteLog("[CFG ] - save config initiated from WebUI", true);
   // check if mqtt_devicetopic was changed
   if (config.mqtt_devicetopic_new != config.mqtt_devicetopic) {
     // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
@@ -971,6 +965,30 @@ void cmd_save_config() {
     mqtt_client.disconnect();
     config.mqtt_devicetopic = config.mqtt_devicetopic_new;
     delay(200);
+  }
+  if (config.set_and_generate_serial) {
+    WriteLog("[CFG ] - set and generate new serial, user input: " + config.new_serial, true);
+    if ((config.new_serial[0] == '0') && (config.new_serial[1] == 'x')) {
+      Serial.println("config.serial is hex");
+      // string serial stores only highest 3 bytes,
+      // add lowest byte with a shift operation for config.serial_number
+      config.serial_number = strtoul(config.new_serial.c_str(), NULL, 16) << 8;
+      // be safe an convert number back to clean 6-digit hex string
+      char serialNumBuffer[11];
+      snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 8));
+      config.serial = serialNumBuffer;
+      Serial.printf("config.serial: %08u = 0x%08x \n", config.serial_number, config.serial_number);
+      cmd_generate_serials(config.serial_number);
+    } else {
+      server.send ( 200, "text/plain", "Set new Serial not successful, not a hexadecimal number.");
+      return;
+    }
+  }
+  if (config.set_devicecounter) {
+    uint16_t new_devcnt = strtoul(config.new_devicecounter.c_str(), NULL, 10);
+    WriteLog("[CFG ] - set devicecounter to " + String(new_devcnt), true);
+    devcnt = new_devcnt;
+    devcnt_handler(false);
   }
   WriteConfig();
   server.send ( 200, "text/plain", "Configuration has been saved, system is restarting. Please refresh manually in about 30 seconds.." );
@@ -990,12 +1008,10 @@ void cmd_restart() {
 //####################################################################
 // generates 16 serial numbers
 //####################################################################
-void cmd_generate_serials(String sn) {
-  const char* serial = sn.c_str();
-  WriteLog("Generate serial numbers starting from", false);
-  WriteLog(sn, true);
-  int z = atoi(serial);           // set serial number range
-  for (int i = 0; i <= 15; ++i) { // Generation of 16 serial numbers and storage in EEPROM
+void cmd_generate_serials(uint32_t sn) {
+  WriteLog("[CFG ] - Generate serial numbers starting from" + String(sn), true);
+  uint32_t z = sn;
+  for (uint32_t i = 0; i <= 15; ++i) { // generate 16 serial numbers and storage in EEPROM
     EEPROM.put(adresses[i], z);   // Serial 4Bytes
     z++;
   }
