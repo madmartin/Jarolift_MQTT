@@ -117,6 +117,8 @@ function getConfig(){
             } else {
               document.getElementById(result[1]).checked = false;
             }
+          } else if (result[0] == "text") {
+            document.getElementById(result[1]).textContent = result[2];
           } else {
             document.getElementById(result[0]).value = result[1];
           }

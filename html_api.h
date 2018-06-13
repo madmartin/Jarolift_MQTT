@@ -153,6 +153,7 @@ void html_api(){
          values += "checkbox=set_and_generate_serial=0\n";
          values += "devicecounter=" + (String)devcnt + "\n";
          values += "checkbox=set_devicecounter=0\n";
+         values += "text=versionstr=Firmware " + String(PROGRAM_VERSION) + "\n";
          server.send ( 200, "text/plain", values ); 
 
       }else if ( cmd == "set channel name"){

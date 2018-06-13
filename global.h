@@ -18,6 +18,8 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#define PROGRAM_VERSION "v0.6-rc2"
+
 #define ACCESS_POINT_NAME      "Jarolift-Dongle"  // default SSID for Admin-Mode
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
