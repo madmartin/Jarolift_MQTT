@@ -920,9 +920,9 @@ void cmd_learn(int channel) {
   new_serial = EEPROM.get(adresses[channel], new_serial);
   EEPROM.get(cntadr, devcnt);
   if (config.learn_mode == true)
-    button = 0xA;                           // Regular learn method. Up+Down followd by Stop.
+    button = 0xA;                           // New learn method. Up+Down followd by Stop.
   else
-    button = 0x1;                           // New learn method. Try if regular version does not work.
+    button = 0x1;                           // Old learn method for receiver before Mfg date 2010.
   disc_l = disc_low[channel] ;
   disc_h = disc_high[channel];
   disc = (disc_l << 8) | serials[channel];

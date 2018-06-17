@@ -45,6 +45,7 @@
               <div class="siimple-form">
                 <div class="siimple-form-title">Network settings</div>
                 <div class="siimple-form-detail">Configure general network settings.</div>
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!-- SSID group -->
                 <div class="siimple-form-field">
                   <div class="siimple-form-field-label">wireless SSID</div>
@@ -99,9 +100,11 @@
                     </div>
                   </div>
                 </div>
+                </div>
     
                 <div class="siimple-form-title">MQTT configuration</div>
                 <div class="siimple-form-detail">Configure MQTT settings.</div>
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!-- MQTT broker IP -->
                 <div class="siimple-form-field">
                     <div class="siimple-form-field-label">broker address</div>
@@ -141,11 +144,12 @@
                   middle part of the mqtt topic to identify the device (if more than one jarolift dongle is used) // default: jarolift
                   <input type="text" id="mqtt_devicetopic" name="mqtt_devicetopic" maxlength=20 class="siimple-input siimple-input--fluid">
                 </div>
+                </div>
     
                 <div class="siimple-form-title">Jarolift settings</div>
                 <div class="siimple-form-detail">Configure Jarolift specific settings.</div>
 
-		<div class="siimple-box siimple-box--purple">
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!-- master MSB -->
                 <div class="siimple-form-field">
                   <div class="siimple-form-field-label">master MSB</div>
@@ -159,16 +163,21 @@
                   <input type="text" id="master_lsb" name="master_lsb" maxlength=10 class="siimple-input siimple-input--fluid">
                 </div>
                 </div>
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!--  Learn mode checkbox -->
                 <div class="siimple-form-field">
+                  <div class="siimple-tip siimple-tip--teal siimple-tip--exclamation">
+                    select learn mode for your receivers (shutter motors / radio receivers). new learn mode is for receivers newer than 2010, which have a learning sequence of buttons UP+DOWN pressed simultaneously, then press STOP. the old learn method for receivers manufactured before 2010 uses a special LEARN button. try new learn mode first.
+                  </div>
                   <label class="siimple-label">new learn mode</label>
                   <div class="siimple-checkbox">
                     <input type="checkbox" id="learn_mode" name="learn_mode">
                     <label for="learn_mode"></label>
                   </div>
                 </div>
+                </div>
 
-		<div class="siimple-box siimple-box--purple">
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!-- serial number -->
                 <div class="siimple-form-field">
                     <div class="siimple-tip siimple-tip--teal siimple-tip--exclamation">
@@ -189,7 +198,7 @@
                 </div>
                 </div>
 
-		<div class="siimple-box siimple-box--purple">
+		<div class="siimple-box" style="background-color:#32e7cf">
                 <!-- device counter -->
                 <div class="siimple-form-field">
                     <div class="siimple-tip siimple-tip--teal siimple-tip--exclamation">
