@@ -259,7 +259,7 @@ function inlineDefaultUpdateCell(cell, i, rowName, options) {
   cell.innerHTML = cellContent;
   if (i === 0) {
     // set the onsubmit function of the form of this row
-    document.getElementById(rowName+"Form").onsubmit = function () {
+    document.getElementById(rowName+"Form").onsubmit = function (event) {
       event.preventDefault();
       if (this.reportValidity()) {
         if (options.hasOwnProperty("finish"))
