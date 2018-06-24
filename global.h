@@ -48,6 +48,8 @@ String web_log = "";                              // used to store log informati
 String web_log_message[NUM_WEB_LOG_MESSAGES];
 int web_log_message_count = 0;
 
+boolean debug_mqtt = true;
+
 struct strConfig {
   uint16_t cfgVersion;
   String  ssid;

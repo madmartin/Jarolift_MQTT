@@ -703,6 +703,14 @@ void entertx() {
 //####################################################################
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
+  if (debug_mqtt) {
+    Serial.printf("mqtt in: %s - ",topic);
+    for (int i = 0; i < length; i++) {
+      Serial.print((char)payload[i]);
+    }
+    Serial.println();
+  }
+
   // extract channel id from topic name
   int channel;
   char * token = strtok(topic, "/");
