@@ -712,16 +712,28 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   }
 
   // extract channel id from topic name
-  int channel;
-  char * token = strtok(topic, "/");
-  for (; (token = strtok(NULL, "/")) != NULL; channel = atoi(token));
+  int channel = 999;
+  char command[10];
+  char * token = strtok(topic, "/");  // initialize token
+  token = strtok(NULL, "/");          // now token = 2nd token
+  token = strtok(NULL, "/");          // now token = 3rd token, "shutter" or so
+  if (debug_mqtt) Serial.printf("command token: %s\n",token);
+  if (strncmp(token,"shutter",7) == 0) {
+    token = strtok(NULL, "/");
+    if (token != NULL) {
+       channel = atoi(token);
+    }
+  } else {
+    WriteLog("[ERR ] - incoming MQTT command unknown: " + (String) topic, true);
+    return;
+  }
 
   // convert payload in string
   payload[length] = '\0';
   String cmd = String((char*)payload);
 
   // print serial message
-  WriteLog("[INFO] - incoming MQTT command for channel " + (String) channel + ":", false);
+  WriteLog("[INFO] - incoming MQTT command: channel " + (String) channel + ":", false);
   WriteLog(cmd, true);
 
   if (channel <= 15) {
@@ -743,10 +755,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     } else if (cmd == "LEARN") {
       cmd_learn(channel);
     } else {
-      WriteLog("[ERR ] - incoming MQTT topic message unknown.", true);
+      WriteLog("[ERR ] - incoming MQTT payload unknown.", true);
     }
   } else {
-    WriteLog("[ERR ] - channel does not exist, choose one of 0-15", true);
+    WriteLog("[ERR ] - invalid channel, choose one of 0-15", true);
   }
 } // void mqtt_callback
 
@@ -1040,7 +1052,7 @@ boolean mqtt_connect() {
   uint8_t willQos = 0;
   boolean willRetain = true;
   const char* willMessage = "Offline";           // LWT message says "Offline"
-  String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/shutter/+";
+  String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/#";
 
   WriteLog("[INFO] - trying to connect to MQTT broker . . .", false);
   // try to connect to MQTT
