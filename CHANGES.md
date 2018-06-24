@@ -2,6 +2,15 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2018-06-24 v0.6
+* make debug output on serial console configurable
+* fix Firefox issue in edit channel names (thanks to sidddy)
+* add mqtt "sendconfig" command: "cmd/jarolift/sendconfig". the dongle replies with json encoded config data
+* check and confirm running with ESP8266 core 2.4.1
+* WebUI: enhance layout of system menu, display version
+* system menu: serial number prefix is displayed and configurable in hexadecimal now
+* system menu: new field: device counter now configurable
+
 ##### 2018-06-09 v0.6-rc2
 * add logging of WiFi connect and disconnect events. WiFi reconnect works well when compiled with ESP8266 core 2.3.0
 
