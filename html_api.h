@@ -19,16 +19,18 @@
 // API call to get data or execute commands via WebIf
 //####################################################################
 void html_api(){
-  Serial.printf("html_api server.args()=%d \n",server.args());
+  if (debug_webui) Serial.printf("html_api server.args()=%d \n",server.args());
   if (server.args() > 0 )
   {
     // get server args from HTML POST
     String cmd = "";
     int channel;
     String channel_name = "";
-    for ( uint8_t i = 0; i < server.args(); i++ ) {
-      Serial.printf("server.argName(%d) == %s\n",i,server.argName(i).c_str());
-      Serial.printf(" urldecode: %s\n",urldecode(server.arg(i)).c_str());
+    if (debug_webui) {
+      for ( uint8_t i = 0; i < server.args(); i++ ) {
+        Serial.printf("server.argName(%d) == %s\n",i,server.argName(i).c_str());
+        Serial.printf(" urldecode: %s\n",urldecode(server.arg(i)).c_str());
+      }
     }
     for ( uint8_t i = 0; i < server.args(); i++ ) {
       if (server.argName(i) == "cmd") cmd         = urldecode(server.arg(i));

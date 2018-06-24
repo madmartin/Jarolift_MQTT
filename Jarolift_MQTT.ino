@@ -282,7 +282,7 @@ String getContentType(String filename) {
 // send the right file to the client (if it exists)
 //####################################################################
 bool handleFileRead(String path) {
-  Serial.println("handleFileRead: " + path);
+  if (debug_webui) Serial.println("handleFileRead: " + path);
   if (path.endsWith("/")) path += "index.html";         // If a folder is requested, send the index file
   String contentType = getContentType(path);            // Get the MIME type
   if (SPIFFS.exists(path)) {                            // If the file exists
@@ -291,7 +291,7 @@ bool handleFileRead(String path) {
     file.close();                                       // Then close the file again
     return true;
   }
-  Serial.println("\tFile Not Found");
+  if (debug_webui) Serial.println("\tFile Not Found");
   return false;                                         // If the file doesn't exist, return false
 } // bool handleFileRead
 

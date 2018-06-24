@@ -49,6 +49,7 @@ String web_log_message[NUM_WEB_LOG_MESSAGES];
 int web_log_message_count = 0;
 
 boolean debug_mqtt = true;
+boolean debug_webui = false;
 
 struct strConfig {
   uint16_t cfgVersion;
