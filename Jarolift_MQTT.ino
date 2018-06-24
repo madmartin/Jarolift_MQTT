@@ -723,6 +723,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     if (token != NULL) {
        channel = atoi(token);
     }
+  } else if (strncmp(token,"sendconfig",10) == 0) {
+    WriteLog("[INFO] - incoming MQTT command: sendconfig",true);
+    mqtt_send_config();
+    return;
   } else {
     WriteLog("[ERR ] - incoming MQTT command unknown: " + (String) topic, true);
     return;
@@ -794,6 +798,66 @@ void mqtt_send_percent_closed_state(int channelNum, int percent, String command)
   }
   WriteLog("[INFO] - command "+ command+ " for channel "+ (String)channelNum+ " ("+ config.channel_name[channelNum]+ ") sent.", true);
 } // void mqtt_send_percent_closed_state
+
+//####################################################################
+// send config via mqtt
+//####################################################################
+void mqtt_send_config() {
+  String Payload;
+  int channelNum, configCnt = 0, lineCnt = 0;
+  char numBuffer[25];
+
+  if (mqtt_client.connected()) {
+
+    // send config of the shutter channels
+    for (int channelNum = 0; channelNum <= 15; channelNum++) {
+      if (config.channel_name[channelNum] != "") {
+        if (lineCnt == 0) {
+          Payload = "{\"channel\":[";
+        } else {
+          Payload += ", ";
+        }
+        EEPROM.get(adresses[channelNum], new_serial);
+        sprintf(numBuffer, "0x%08x", new_serial);
+        Payload += "{\"id\":" + String(channelNum) + ", \"name\":\"" + config.channel_name[channelNum] + "\", "
+                 + "\"serial\":\"" + numBuffer +  "\"}";
+        lineCnt++;
+
+        if (lineCnt >= 4) {
+          Payload += "]}";
+          mqtt_send_config_line(configCnt, Payload);
+          lineCnt = 0;
+        }
+      } // if (config.channel_name[channelNum] != "")
+    } // for
+
+    // handle last item
+    if (lineCnt > 0) {
+      Payload += "]}";
+      mqtt_send_config_line(configCnt, Payload);
+    }
+
+    // send most important other config info
+    snprintf(numBuffer, 15, "%d", devcnt);
+    Payload = "{\"serialprefix\":\"" + config.serial + "\", "
+            + "\"mqtt-clientid\":\"" + config.mqtt_broker_client_id + "\", "
+            + "\"mqtt-devicetopic\":\"" + config.mqtt_devicetopic + "\", "
+            + "\"devicecounter\":" + (String)numBuffer + ", "
+            + "\"new_learn_mode\":" + (String)config.learn_mode + "}";
+    mqtt_send_config_line(configCnt, Payload);
+  } // if (mqtt_client.connected())
+} // void mqtt_send_config
+
+//####################################################################
+// send one config telegram via mqtt
+//####################################################################
+void mqtt_send_config_line(int & counter, String Payload) {
+  String Topic = "stat/"+ config.mqtt_devicetopic+ "/config/" + (String)counter;
+  if (debug_mqtt) Serial.println("mqtt send: " + Topic + " - " + Payload);
+  mqtt_client.publish(Topic.c_str(), Payload.c_str());
+  counter++;
+  yield();
+} // void mqtt_send_config_line
 
 //####################################################################
 // function to move the shutter up
