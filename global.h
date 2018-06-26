@@ -107,9 +107,12 @@ void WriteLog(String msg, boolean new_line = false)
   }
 
   if (web_log_message[web_log_message_count] == "") {
-    long uptime = millis() / 1000;
-    web_log_message[web_log_message_count] = (String)uptime + " " + msg;
-    Serial.print((String)uptime + " " + msg);
+    time_t now = time(nullptr);
+	struct tm * timeinfo = localtime(&now);
+	char buffer[30];
+	strftime (buffer, 30,"%d.%m.%Y %T", timeinfo);
+    web_log_message[web_log_message_count] = (String)buffer + " " + msg;
+    Serial.print((String)buffer + " " + msg);
   } else {
     web_log_message[web_log_message_count] += " " + msg;
     Serial.print(" " + msg);

@@ -48,6 +48,7 @@
 #include <PubSubClient.h>
 #include <Ticker.h>
 #include <DoubleResetDetector.h>
+#include <time.h>
 
 #include "helpers.h"
 #include "global.h"
@@ -76,6 +77,10 @@ extern "C" {
 
 // RTC Memory Address for the DoubleResetDetector to use
 #define DRD_ADDRESS 0
+
+// Timezone Settings
+#define TIMEZONE         1      // Timezone-Difference to UTC-Time in hours
+#define DST              60     // Use 60 minutes for summer time in some countries
 
 // User configuration
 #define Lowpulse         400    // Defines pulse-width in microseconds. Adapt for your use...
@@ -181,6 +186,7 @@ void setup()
   InitLog();
   EEPROM.begin(4096);
   Serial.begin(115200);
+  configTime(TIMEZONE * 3600, DST * 60, "pool.ntp.org");
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 
