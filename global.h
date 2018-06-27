@@ -24,6 +24,13 @@
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 #define MQTT_Reconnect_Interval 30000             // try connect to MQTT server very X milliseconds
+#define NTP_SERVERS            "pool.ntp.org", "time.nist.gov" // NTP server, maximum are 3 servers
+#define NTP_UPDATE_INTERVAL    24                 // NTP update interval in hours
+#define TIMEZONE               +1                 // difference localtime to UTC/GMT in hours
+
+struct dstRule StartRule = {"CEST", Last, Sun, Mar, 2, 3600}; // Daylight time
+struct dstRule EndRule = {"CET", Last, Sun, Oct, 2, 0};       // Standard time
+simpleDSTadjust dstAdjusted(StartRule, EndRule);  // Setup simpleDSTadjust Library rules
 
 ESP8266WebServer server(80);                      // The Webserver
 WiFiClient espClient;
@@ -107,9 +114,13 @@ void WriteLog(String msg, boolean new_line = false)
   }
 
   if (web_log_message[web_log_message_count] == "") {
-    long uptime = millis() / 1000;
-    web_log_message[web_log_message_count] = (String)uptime + " " + msg;
-    Serial.print((String)uptime + " " + msg);
+    char *dstAbbrev;
+    time_t now = dstAdjusted.time(&dstAbbrev);
+    struct tm * timeinfo = localtime(&now);
+    char buffer[30];
+    strftime (buffer, 30, "%Y-%m-%d %T", timeinfo);
+    web_log_message[web_log_message_count] = (String)buffer + " " + dstAbbrev + " " + msg;
+    Serial.print((String)buffer + " " + dstAbbrev + " " + msg);
   } else {
     web_log_message[web_log_message_count] += " " + msg;
     Serial.print(" " + msg);
