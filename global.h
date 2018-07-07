@@ -309,14 +309,13 @@ boolean ReadConfig()
 
   // check is config.serial is hexadecimal
   // if necessary, convert decimal to hexadecimal
-  Serial.println("config.serial: "+ config.serial);
   if ((config.serial[0] == '0') && (config.serial[1] == 'x')) {
-    Serial.println("config.serial is hex");
+    // config.serial is hex
     // string serial stores only highest 3 bytes,
     // add lowest byte with a shift operation for config.serial_number
     config.serial_number = strtol(config.serial.c_str(), NULL, 16) << 8;
-    Serial.printf("config.serial: %08u = 0x%08x \n", config.serial_number, config.serial_number);
   } else {
+    // config.serial is NOT hex
     config.serial_number = strtol(config.serial.c_str(), NULL, 10);
     // string serial stores only highest 3 bytes,
     // remove lowest byte with a shift operation
