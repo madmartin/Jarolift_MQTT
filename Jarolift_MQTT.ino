@@ -1124,16 +1124,16 @@ boolean mqtt_connect() {
   const char* willMessage = "Offline";           // LWT message says "Offline"
   String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/#";
 
-  WriteLog("[INFO] - trying to connect to MQTT broker . . .", false);
+  WriteLog("[INFO] - trying to connect to MQTT broker", true);
   // try to connect to MQTT
   if (mqtt_client.connect(client_id, username, password, willTopic.c_str(), willQos, willRetain, willMessage )) {
-    WriteLog("success!", true);
+    WriteLog("[INFO] - MQTT connect success", true);
     // subscribe the needed topics
     mqtt_client.subscribe(subscribeString.c_str());
     // publish telemetry message "we are online now"
     mqtt_client.publish(willTopic.c_str(), "Online", true);
   } else {
-    WriteLog("failed, rc ="+ (String)mqtt_client.state(), true);
+    WriteLog("[ERR ] - MQTT connect failed, rc ="+ (String)mqtt_client.state(), true);
   }
   return mqtt_client.connected();
 } // boolean mqtt_connect
