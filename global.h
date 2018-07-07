@@ -24,7 +24,7 @@
 #define ACCESS_POINT_PASSWORD  "12345678"         // default WLAN password for Admin-Mode
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 #define MQTT_Reconnect_Interval 30000             // try connect to MQTT server very X milliseconds
-#define NTP_SERVERS            "pool.ntp.org", "time.nist.gov" // NTP server, maximum are 3 servers
+#define NTP_SERVERS            "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org" // List of up to 3 NTP servers
 #define NTP_UPDATE_INTERVAL    24                 // NTP update interval in hours
 #define TIMEZONE               +1                 // difference localtime to UTC/GMT in hours
 
