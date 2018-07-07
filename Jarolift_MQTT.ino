@@ -50,6 +50,7 @@
 #include <DoubleResetDetector.h>
 #include <time.h>
 #include <simpleDSTadjust.h>
+#include <coredecls.h>              // settimeofday_cb()
 
 #include "helpers.h"
 #include "global.h"
@@ -125,6 +126,7 @@ bool lcl_group = false;
 char serialnr[4] = {0};
 char sn[4] = {0};
 int steadycnt = 0;
+boolean time_is_set_first = true;
 
 
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
@@ -183,6 +185,7 @@ void setup()
   InitLog();
   EEPROM.begin(4096);
   Serial.begin(115200);
+  settimeofday_cb(time_is_set);
   updateNTP(); // Init the NTP time
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
@@ -1141,3 +1144,14 @@ boolean mqtt_connect() {
 void updateNTP() {
   configTime(TIMEZONE * 3600, 0, NTP_SERVERS);
 } // updateNTP
+
+//####################################################################
+// callback function when time is set via SNTP
+//####################################################################
+void time_is_set(void) {
+  if (time_is_set_first) {    // call WriteLog only once for the initial time set
+    time_is_set_first = false;
+    WriteLog("[INFO] - time set from NTP server", true);
+  }
+  Serial.println("--- settimeofday() was called ---");
+}
