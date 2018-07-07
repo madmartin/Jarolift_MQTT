@@ -51,7 +51,9 @@ int web_cmd_channel;                              // keeps the respective channe
 
 #define NUM_WEB_LOG_MESSAGES 42                   // number of messages in the web-UI log page
 String web_log_message[NUM_WEB_LOG_MESSAGES];
-int web_log_message_count = 0;
+uint16_t web_log_message_nextfree = 0;
+boolean web_log_message_rotated = false;
+boolean web_log_message_newline = true;
 
 boolean debug_mqtt = true;
 boolean debug_webui = false;
@@ -101,31 +103,33 @@ void InitLog()
 //####################################################################
 void WriteLog(String msg, boolean new_line = false)
 {
-  // check if log buffer is "full"
-  if (web_log_message_count == NUM_WEB_LOG_MESSAGES) {
-    // when full then move all messages one line up
-    for ( int i = 1; i < NUM_WEB_LOG_MESSAGES;  ++i ) {
-      web_log_message[i - 1] = web_log_message[i];
-    }
-    web_log_message_count--;
-    web_log_message[web_log_message_count] = "";
-  }
+// web_log_message[] is an array of strings, used as a circular buffer
+// web_log_message_nextfree points to the next free-to-use buffer line
+// when web_log_message_nextfree becomes larger than NUM_WEB_LOG_MESSAGES,
+// it is reset to 0 and web_log_message_rotated=true
+// web_log_message_newline indicates whether we are at the beginning of a line or not
 
-  if (web_log_message[web_log_message_count] == "") {
+  if (web_log_message_newline) {
     char *dstAbbrev;
     time_t now = dstAdjusted.time(&dstAbbrev);
     struct tm * timeinfo = localtime(&now);
     char buffer[30];
     strftime (buffer, 30, "%Y-%m-%d %T", timeinfo);
-    web_log_message[web_log_message_count] = (String)buffer + " " + dstAbbrev + " " + msg;
+    web_log_message[web_log_message_nextfree] = (String)buffer + " " + dstAbbrev + " " + msg;
     Serial.print((String)buffer + " " + dstAbbrev + " " + msg);
+    web_log_message_newline = false;
   } else {
-    web_log_message[web_log_message_count] += " " + msg;
+    web_log_message[web_log_message_nextfree] += " " + msg;
     Serial.print(" " + msg);
   }
   if (new_line == true) {
-    web_log_message_count++;
+    web_log_message_nextfree++;
+    if (web_log_message_nextfree >= NUM_WEB_LOG_MESSAGES) {
+      web_log_message_nextfree = 0;
+      web_log_message_rotated = true;
+    }
     Serial.println();
+    web_log_message_newline = true;
   }
 } // void WriteLog
 

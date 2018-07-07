@@ -82,20 +82,24 @@ void html_api(){
     } // for
     if (cmd != "")
     {
-      if (cmd == "eventlog"){
-         String values ="";
-         String counter;
-         for( int i = 0; i < NUM_WEB_LOG_MESSAGES; i++ ){
-            if (web_log_message[i] != ""){
-               if ((i+1) < 10) {
-                  counter = "0" + String(i + 1);
-               }else {
-                  counter = String(i + 1);
-               }
-               values += counter + "-" + web_log_message[i] + "\n";
-            }
-         }
-         server.send ( 200, "text/plain", values );
+      if (cmd == "eventlog") {
+        String values = "";
+        // web_log_message[] is an array of strings, used as a circular buffer
+        // web_log_message_nextfree points to the next free-to-use buffer line
+        // first message in log depends of web_log_message_rotated
+        //   false: first message is entry 0, last is (web_log_message_nextfree-1)
+        //   true:  first/oldest message is (web_log_message_nextfree), last is (web_log_message_nextfree-1)
+        if (web_log_message_rotated) {
+          int msg_end = web_log_message_nextfree + NUM_WEB_LOG_MESSAGES;
+          for (int msg_ptr = web_log_message_nextfree; msg_ptr < msg_end; msg_ptr++) {
+            values += web_log_message[(msg_ptr % NUM_WEB_LOG_MESSAGES)] + "\n";
+          }
+        } else {
+          for (int msg_ptr = 0; msg_ptr < web_log_message_nextfree; msg_ptr++) {
+            values += web_log_message[msg_ptr] + "\n";
+          }
+        }
+        server.send ( 200, "text/plain", values );
       } else if (cmd == "save") {
         // handled in main loop
         web_cmd = cmd;
