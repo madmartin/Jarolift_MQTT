@@ -2,6 +2,10 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2018-07-01
+* merge https://github.com/madmartin/Jarolift_MQTT/pull/5/ (partially)
+* adds SNTP time fetch and timestamps in log
+
 ##### 2018-06-24 v0.6
 * make debug output on serial console configurable
 * fix Firefox issue in edit channel names (thanks to sidddy)

@@ -28,6 +28,7 @@ The provided libraries have different licenses, look into the respective files f
 * DoubleResetDetector   MIT License
 * Keeloq library        unknown License
 * PubSubClient-2.6.09   "AS-IS"-License
+* simpleDSTadjust       unknown License
 
 ### Necessary Hardware:
 
@@ -54,6 +55,7 @@ Default under linux: `$HOME/Arduino/libraries/`
 * copy the folder `DoubleResetDetector` to the arduino library folder
 * copy the folder `PubSubClient-2.6.09` to the arduino library folder
 * copy the folder `KeeloqLib` to the arduino library folder
+* copy the folder `simpleDSTadjust` to the arduino library folder
 
 
 ### Compile
