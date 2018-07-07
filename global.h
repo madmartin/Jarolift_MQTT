@@ -25,7 +25,6 @@
 #define AdminTimeOut           180                // Defines the time in seconds, when the Admin-Mode will be disabled
 #define MQTT_Reconnect_Interval 30000             // try connect to MQTT server very X milliseconds
 #define NTP_SERVERS            "0.pool.ntp.org", "1.pool.ntp.org", "2.pool.ntp.org" // List of up to 3 NTP servers
-#define NTP_UPDATE_INTERVAL    24                 // NTP update interval in hours
 #define TIMEZONE               +1                 // difference localtime to UTC/GMT in hours
 
 struct dstRule StartRule = {"CEST", Last, Sun, Mar, 2, 3600}; // Daylight time

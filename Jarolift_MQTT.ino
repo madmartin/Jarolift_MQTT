@@ -125,9 +125,6 @@ bool lcl_group = false;
 char serialnr[4] = {0};
 char sn[4] = {0};
 int steadycnt = 0;
-Ticker ticker1;
-int32_t tick;
-bool readyForNtpUpdate = false;           // flag changed in the ticker function to start NTP Update
 
 
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
@@ -187,8 +184,6 @@ void setup()
   EEPROM.begin(4096);
   Serial.begin(115200);
   updateNTP(); // Init the NTP time
-  tick = NTP_UPDATE_INTERVAL * 3600; // Init the NTP update countdown ticker
-  ticker1.attach(1, secTicker); // Run a 1 second interval Ticker
   WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
   WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
 
@@ -309,12 +304,6 @@ bool handleFileRead(String path) {
 //####################################################################
 void loop()
 {
-
-  if(readyForNtpUpdate) {
-    readyForNtpUpdate = false;
-    updateNTP();
-    WriteLog("[INFO] - updated time from NTP Server", true);
-  }
 
   // Call the double reset detector loop method every so often,
   // so that it can recognise when the timeout expires.
@@ -1145,17 +1134,6 @@ boolean mqtt_connect() {
   }
   return mqtt_client.connected();
 } // boolean mqtt_connect
-
-//####################################################################
-// NTP timer update ticker
-//####################################################################
-void secTicker() {
-  tick--;
-  if(tick <= 0) {
-    readyForNtpUpdate = true;
-    tick = NTP_UPDATE_INTERVAL * 3600; // Re-arm
-  }
-} // secTicker
 
 //####################################################################
 // NTP update
