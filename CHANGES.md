@@ -2,6 +2,10 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2018-07-07 v0.7
+* rework use of web_log_message[] array, now a circular buffer
+* fix logging of "incoming MQTT command unknown"
+
 ##### 2018-07-01
 * merge https://github.com/madmartin/Jarolift_MQTT/pull/5/ (partially)
 * adds SNTP time fetch and timestamps in log

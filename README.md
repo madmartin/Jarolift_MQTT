@@ -68,13 +68,6 @@ In menu "Tools" set the correct board type. If you have any kind of NodeMCU, the
 ``NodeMCU 1.0 (ESP-12E Module`` will probably work.
 The following settings have proofed to work with a NodeMCU v1.0/V2 [comparison of boards](https://frightanic.com/iot/comparison-of-esp8266-nodemcu-development-boards/)
 
-##### ESP Core 2.3.0
-* Board: "NodeMCU 1.0 (ESP-12E Module)"
-* Flash Size: "4M (1M SPIFFS)"
-* lwIP variant: "v2 Prebuilt (MSS)536)"
-* CPU Frequency: "80 MHz"
-* Upload speed: "115200"
-
 ##### ESP Core 2.4.1
 * Board: "NodeMCU 1.0 (ESP-12E Module)"
 * Flash Size: "4M (1M SPIFFS)"
@@ -138,9 +131,6 @@ Console Speed is 115200 Bit/s
 
 ### Known issues
 
-* on the WebUI shutter page, while trying to edit, the "finish" button has no effect. This is a known problem with Firefox browser, and is known to work with Chrome/Chromium.
-* after upgrade to this release, due to changes of the EEPROM memory layout the MQTT port parameter needs to be set again.
-* when Dongle looses the WLAN connection, the reconnect behaviour may not be good. There is a known problem with failing WLAN connection after a ESP restart with ESP Core 2.4.0, so better compile this project with ESP Core 2.3.0. or ESP Core 2.4.1. See what other projects say about this: [#1](https://github.com/tzapu/WiFiManager/issues/532) [#2](https://github.com/arendst/Sonoff-Tasmota/wiki/What%27s-New#esp8266arduino-core-information)
 * after flashing the NodeMCU board, on the first run of the fresh flashed sketch, any kind of restart (through WebUI or after a crash) of the ESP8266 may not properly work, causes the NodeMCU board board to hang. On the serial monitor, you see output like
 ```
 handleFileRead: /favicon.png
