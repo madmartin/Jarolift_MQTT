@@ -50,7 +50,6 @@ String web_cmd = "";                              // trigger to run a command wh
 int web_cmd_channel;                              // keeps the respective channel ID for the web_cmd
 
 #define NUM_WEB_LOG_MESSAGES 42                   // number of messages in the web-UI log page
-String web_log = "";                              // used to store log information for displaying in webIF
 String web_log_message[NUM_WEB_LOG_MESSAGES];
 int web_log_message_count = 0;
 

@@ -122,9 +122,6 @@ volatile unsigned int hibuf[pufsize];     // ring buffer storing HIGH pulse leng
 volatile bool iset = false;
 volatile byte value = 0;                  // Stores RSSI Value
 long rx_time;
-bool lcl_group = false;
-char serialnr[4] = {0};
-char sn[4] = {0};
 int steadycnt = 0;
 boolean time_is_set_first = true;
 
