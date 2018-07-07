@@ -731,7 +731,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
     mqtt_send_config();
     return;
   } else {
-    WriteLog("[ERR ] - incoming MQTT command unknown: " + (String) topic, true);
+    WriteLog("[ERR ] - incoming MQTT command unknown: " + (String)token, true);
     return;
   }
 
