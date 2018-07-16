@@ -268,6 +268,10 @@ void setup()
   // RX
   pinMode(DATAIN, INPUT_PULLUP);
   attachInterrupt(DATAIN, measure, CHANGE); // Interrupt @Inputpin
+
+  Serial.printf("size of int: %d\n", sizeof(rx_device_key_lsb));
+  unsigned long lala=0;
+  Serial.printf("size of long: %d\n", sizeof(lala));
 } // void setup
 
 //####################################################################
@@ -458,16 +462,7 @@ int keeloq () {
 // https://github.com/hnhkj/documents/blob/master/KEELOQ/docs/AN745/00745a_c.pdf
 //####################################################################
 int keygen () {
-
-  char  charBufMSB[config.master_msb.length() + 1];
-  config.master_msb.toCharArray(charBufMSB, config.master_msb.length() + 1);
-  const unsigned long MasterMSB = (int)strtol(charBufMSB, NULL, 16);
-
-  char  charBufLSB[config.master_lsb.length() + 1];
-  config.master_lsb.toCharArray(charBufLSB, config.master_lsb.length() + 1);
-  const unsigned long MasterLSB = (int)strtol(charBufLSB, NULL, 16);
-
-  Keeloq k(MasterMSB, MasterLSB);
+  Keeloq k(config.ulMasterMSB, config.ulMasterLSB);
   uint64_t keylow = new_serial | 0x20000000;
   unsigned long enc = k.decrypt(keylow);
   device_key_lsb  = enc;              // Stores LSB devicekey 16Bit
@@ -620,16 +615,7 @@ unsigned char reverse_byte(unsigned char x)
 // Calculate device code from received serial number
 //####################################################################
 int rx_keygen () {
-
-  char  charBufMSB[config.master_msb.length() + 1];
-  config.master_msb.toCharArray(charBufMSB, config.master_msb.length() + 1);
-  const unsigned long MasterMSB = (int)strtol(charBufMSB, NULL, 16);
-
-  char  charBufLSB[config.master_lsb.length() + 1];
-  config.master_lsb.toCharArray(charBufLSB, config.master_lsb.length() + 1);
-  const unsigned long MasterLSB = (int)strtol(charBufLSB, NULL, 16);
-
-  Keeloq k(MasterMSB, MasterLSB);
+  Keeloq k(config.ulMasterMSB, config.ulMasterLSB);
   uint32_t keylow = rx_serial | 0x20000000;
   unsigned long enc = k.decrypt(keylow);
   rx_device_key_lsb  = enc;        // Stores LSB devicekey 16Bit

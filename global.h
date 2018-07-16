@@ -74,6 +74,8 @@ struct strConfig {
   String  mqtt_devicetopic;
   String  master_msb;
   String  master_lsb;
+  unsigned long ulMasterMSB;
+  unsigned long ulMasterLSB;
   boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
                               // If set to false another method for older versions of Jarolift motors is used.
   String  serial;             // starting serial number as string
@@ -327,6 +329,12 @@ boolean ReadConfig()
     WriteLog("[INFO] - config version 2 - convert serial decimal->hexadecimal", true);
     WriteConfig();
   }
+
+  char charBufSB[11];
+  config.master_msb.toCharArray(charBufSB, config.master_msb.length() + 1);
+  config.ulMasterMSB = (int)strtol(charBufSB, NULL, 16);
+  config.master_lsb.toCharArray(charBufSB, config.master_lsb.length() + 1);
+  config.ulMasterLSB = (int)strtol(charBufSB, NULL, 16);
 
   return true;
 } // boolean ReadConfig
