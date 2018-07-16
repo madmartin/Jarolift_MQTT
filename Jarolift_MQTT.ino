@@ -758,7 +758,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 //####################################################################
 // increment and store devcnt, send devcnt as mqtt state topic
 //####################################################################
-void devcnt_handler(boolean do_increment = true) {
+void devcnt_handler(boolean do_increment) {
   if (do_increment)
     devcnt++;
   EEPROM.put(cntadr, devcnt);
@@ -871,7 +871,7 @@ void cmd_up(int channel) {
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
   mqtt_send_percent_closed_state(channel, 0, "UP");
-  devcnt_handler();
+  devcnt_handler(true);
 } // void cmd_up
 
 //####################################################################
@@ -897,7 +897,7 @@ void cmd_down(int channel) {
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
   mqtt_send_percent_closed_state(channel, 100, "DOWN");
-  devcnt_handler();
+  devcnt_handler(true);
 } // void cmd_down
 
 //####################################################################
@@ -923,7 +923,7 @@ void cmd_stop(int channel) {
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
   WriteLog("[INFO] - command STOP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
-  devcnt_handler();
+  devcnt_handler(true);
 } // void cmd_stop
 
 //####################################################################
@@ -949,7 +949,7 @@ void cmd_shade(int channel) {
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
   mqtt_send_percent_closed_state(channel, 90, "SHADE");
-  devcnt_handler();
+  devcnt_handler(true);
 } // void cmd_shade
 
 //####################################################################
