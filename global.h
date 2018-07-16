@@ -301,7 +301,6 @@ boolean ReadConfig()
     config.mqtt_devicetopic = "jarolift"; // default devicetopic
     config.cfgVersion = 2;
     // clear EEPROM space
-    int index = 0;
     for (int index = 120 ; index < 4096 ; index++) {
       EEPROM.write(index, 0);
     }
