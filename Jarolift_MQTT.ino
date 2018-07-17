@@ -48,7 +48,6 @@
 #include <PubSubClient.h>
 #include <Ticker.h>
 #include <DoubleResetDetector.h>
-#include <time.h>
 #include <simpleDSTadjust.h>
 #include <coredecls.h>              // settimeofday_cb()
 
@@ -57,20 +56,10 @@
 #include "html_api.h"
 
 extern "C" {
-#include <Wire.h>
-#include <stdint.h>
-#include "c_types.h"
-#include "ets_sys.h"
-#include "os_type.h"
-#include "osapi.h"
-#include "mem.h"
 #include "user_interface.h"
-#include "smartconfig.h"
 #include "Arduino.h"
 #include "cc1101.h"
-#include <stdio.h>
 #include <KeeloqLib.h>
-#include <stdlib.h>
 }
 
 // Number of seconds after reset during which a
