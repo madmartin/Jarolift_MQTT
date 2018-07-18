@@ -48,7 +48,6 @@
 #include <PubSubClient.h>
 #include <Ticker.h>
 #include <DoubleResetDetector.h>
-#include <time.h>
 #include <simpleDSTadjust.h>
 #include <coredecls.h>              // settimeofday_cb()
 
@@ -57,20 +56,10 @@
 #include "html_api.h"
 
 extern "C" {
-#include <Wire.h>
-#include <stdint.h>
-#include "c_types.h"
-#include "ets_sys.h"
-#include "os_type.h"
-#include "osapi.h"
-#include "mem.h"
 #include "user_interface.h"
-#include "smartconfig.h"
 #include "Arduino.h"
 #include "cc1101.h"
-#include <stdio.h>
 #include <KeeloqLib.h>
-#include <stdlib.h>
 }
 
 // Number of seconds after reset during which a
@@ -105,7 +94,8 @@ int MqttRetryCounter = 0;                 // Counter for MQTT reconnect
 // RX variables and defines
 #define debounce         200              // Ignoring short pulses in reception... no clue if required and if it makes sense ;)
 #define pufsize          216              // Pulsepuffer
-#define DATAIN             5              // Inputport for reception
+#define TX_PORT            4              // Outputport for transmission
+#define RX_PORT            5              // Inputport for reception
 uint32_t rx_serial       = 0;
 char rx_serial_array[8]  = {0};
 char rx_disc_low[8]      = {0};
@@ -135,7 +125,7 @@ void ICACHE_RAM_ATTR measure()
 {
   static long LineUp, LineDown, Timeout;
   long LowVal, HighVal;
-  int pinstate = digitalRead(DATAIN); // Read current pin state
+  int pinstate = digitalRead(RX_PORT); // Read current pin state
   if (micros() - Timeout > 3500) {
     pbwrite = 0;
   }
@@ -266,8 +256,8 @@ void setup()
   pinMode(4, OUTPUT); // TX Pin
 
   // RX
-  pinMode(DATAIN, INPUT_PULLUP);
-  attachInterrupt(DATAIN, measure, CHANGE); // Interrupt @Inputpin
+  pinMode(RX_PORT, INPUT_PULLUP);
+  attachInterrupt(RX_PORT, measure, CHANGE); // Interrupt @Inputpin
 
   Serial.printf("size of int: %d\n", sizeof(rx_device_key_lsb));
   unsigned long lala=0;
@@ -335,11 +325,12 @@ void loop()
     enterrx();
     iset = false;
     delay(200);
-    attachInterrupt(DATAIN, measure, CHANGE); // Interrupt @Inputpin;
+    attachInterrupt(RX_PORT, measure, CHANGE); // Interrupt @Inputpin;
   }
 
   // Check if RX buffer is full
   if ((lowbuf[0] > 3650) && (lowbuf[0] < 4300) && (pbwrite >= 65) && (pbwrite <= 75)) {     // Decode received data...
+    WriteLog("[INFO] - received data", true);
     iset = true;
     ReadRSSI();
     pbwrite = 0;
@@ -380,7 +371,7 @@ void loop()
       }
     }
 
-    Serial.printf("serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
+    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
 
     rx_disc_high[0] = rx_disc_h & 0xFF;
     rx_keygen ();
@@ -419,7 +410,7 @@ void loop()
   if (web_cmd != "") {
 
     iset = true;
-    detachInterrupt(DATAIN); // Interrupt @Inputpin
+    detachInterrupt(RX_PORT); // Interrupt @Inputpin
     delay(1);
 
     if (web_cmd == "up") {
@@ -470,7 +461,7 @@ int keygen () {
   enc    = k.decrypt(keylow);
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
-  Serial.printf("devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
+  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
 } // int keygen
 
 //####################################################################
@@ -481,7 +472,7 @@ void senden(int repetitions) {
   pack = (button << 60) | (new_serial << 32) | dec;
   for (int a = 0; a < repetitions; a++)
   {
-    digitalWrite(4, LOW);            // CC1101 in TX Mode+
+    digitalWrite(TX_PORT, LOW);      // CC1101 in TX Mode+
     delayMicroseconds(1150);
     frame(13);                       // change 28.01.2018 default 10
     delayMicroseconds(3500);
@@ -491,16 +482,16 @@ void senden(int repetitions) {
       int out = ((pack >> i) & 0x1); // Bitmask to get MSB and send it first
       if (out == 0x1)
       {
-        digitalWrite(4, LOW);        // Simple encoding of bit state 1
+        digitalWrite(TX_PORT, LOW);  // Simple encoding of bit state 1
         delayMicroseconds(Lowpulse);
-        digitalWrite(4, HIGH);
+        digitalWrite(TX_PORT, HIGH);
         delayMicroseconds(Highpulse);
       }
       else
       {
-        digitalWrite(4, LOW);        // Simple encoding of bit state 0
+        digitalWrite(TX_PORT, LOW);  // Simple encoding of bit state 0
         delayMicroseconds(Highpulse);
-        digitalWrite(4, HIGH);
+        digitalWrite(TX_PORT, HIGH);
         delayMicroseconds(Lowpulse);
       }
     }
@@ -521,16 +512,16 @@ void group_h() {
     int out = ((disc_h >> i) & 0x1); // Bitmask to get MSB and send it first
     if (out == 0x1)
     {
-      digitalWrite(4, LOW);          // Simple encoding of bit state 1
+      digitalWrite(TX_PORT, LOW);    // Simple encoding of bit state 1
       delayMicroseconds(Lowpulse);
-      digitalWrite(4, HIGH);
+      digitalWrite(TX_PORT, HIGH);
       delayMicroseconds(Highpulse);
     }
     else
     {
-      digitalWrite(4, LOW);          // Simple encoding of bit state 0
+      digitalWrite(TX_PORT, LOW);    // Simple encoding of bit state 0
       delayMicroseconds(Highpulse);
-      digitalWrite(4, HIGH);
+      digitalWrite(TX_PORT, HIGH);
       delayMicroseconds(Lowpulse);
     }
   }
@@ -541,9 +532,9 @@ void group_h() {
 //####################################################################
 void frame(int l) {
   for (int i = 0; i < l; ++i) {
-    digitalWrite(4, LOW);
+    digitalWrite(TX_PORT, LOW);
     delayMicroseconds(400);          // change 28.01.2018 default highpulse
-    digitalWrite(4, HIGH);
+    digitalWrite(TX_PORT, HIGH);
     delayMicroseconds(380);          // change 28.01.2018 default lowpulse
   }
 } // void frame
@@ -560,7 +551,7 @@ int rx_keygen () {
   enc    = k.decrypt(keylow);
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
-  Serial.printf("devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
+  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
 } // int rx_keygen
 
 //####################################################################
@@ -594,7 +585,7 @@ void ReadRSSI()
     value = rssi / 2;
     value += 74;
   }
-  Serial.print("CC1101_RSSI ");
+  Serial.print(" CC1101_RSSI ");
   Serial.println(value);
 } // void ReadRSSI
 
@@ -668,7 +659,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   if (channel <= 15) {
 
     iset = true;
-    detachInterrupt(DATAIN); // Interrupt @Inputpin
+    detachInterrupt(RX_PORT); // Interrupt @Inputpin
     delay(1);
 
     if (cmd == "UP" || cmd == "0") {
