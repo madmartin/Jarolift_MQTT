@@ -40,7 +40,7 @@ WiFiEventHandler gotIpEventHandler, disconnectedEventHandler;
 boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoint for configuration
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
 boolean wifi_disconnect_log = true;               // Flag to avoid repeated logging of disconnect events
-int led_pin = 2;                                  // GPIO Pin number for LED
+int led_pin = LED_BUILTIN;                        // GPIO Pin number for LED
 Ticker tkSecond;                                  // Second - Timer for Updating Datetime Structure
 unsigned short devcnt = 0x0;                      // Initial 16Bit countervalue, will be stored in EEPROM and
                                                   //   incremented once every time a command is send
