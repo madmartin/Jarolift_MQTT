@@ -330,6 +330,7 @@ void loop()
 
   // Check if RX buffer is full
   if ((lowbuf[0] > 3650) && (lowbuf[0] < 4300) && (pbwrite >= 65) && (pbwrite <= 75)) {     // Decode received data...
+    WriteLog("[INFO] - received data", true);
     iset = true;
     ReadRSSI();
     pbwrite = 0;
@@ -370,7 +371,7 @@ void loop()
       }
     }
 
-    Serial.printf("serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
+    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
 
     rx_disc_high[0] = rx_disc_h & 0xFF;
     rx_keygen ();
@@ -460,7 +461,7 @@ int keygen () {
   enc    = k.decrypt(keylow);
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
-  Serial.printf("devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
+  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
 } // int keygen
 
 //####################################################################
@@ -550,7 +551,7 @@ int rx_keygen () {
   enc    = k.decrypt(keylow);
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
-  Serial.printf("devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
+  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
 } // int rx_keygen
 
 //####################################################################
@@ -584,7 +585,7 @@ void ReadRSSI()
     value = rssi / 2;
     value += 74;
   }
-  Serial.print("CC1101_RSSI ");
+  Serial.print(" CC1101_RSSI ");
   Serial.println(value);
 } // void ReadRSSI
 
