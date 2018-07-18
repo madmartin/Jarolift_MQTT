@@ -44,6 +44,7 @@
 #include <EEPROM.h>
 #include <ESP8266WebServer.h>
 #include <SPI.h>
+#include <FS.h>
 #include <PubSubClient.h>
 #include <Ticker.h>
 #include <DoubleResetDetector.h>
