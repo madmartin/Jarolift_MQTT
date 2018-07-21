@@ -330,7 +330,8 @@ void loop()
 
   // Check if RX buffer is full
   if ((lowbuf[0] > 3650) && (lowbuf[0] < 4300) && (pbwrite >= 65) && (pbwrite <= 75)) {     // Decode received data...
-    WriteLog("[INFO] - received data", true);
+    if (debug_log_radio_receive_all)
+      WriteLog("[INFO] - received data", true);
     iset = true;
     ReadRSSI();
     pbwrite = 0;

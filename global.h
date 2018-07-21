@@ -57,6 +57,7 @@ boolean web_log_message_newline = true;
 
 boolean debug_mqtt = true;
 boolean debug_webui = false;
+boolean debug_log_radio_receive_all = false;
 
 struct strConfig {
   uint16_t cfgVersion;
