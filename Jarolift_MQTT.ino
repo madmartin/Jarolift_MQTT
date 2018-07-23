@@ -498,10 +498,7 @@ void senden(int repetitions) {
     }
     group_h();                       // Last 8Bit. For motor 8-16.
 
-    unsigned long delaytime = micros(); // This part is necessary to prevent the wdt to reset the device.
-    delay(13);
-    delaytime = micros() - delaytime;
-    delayMicroseconds(16000 - delaytime);
+    delay(16);                       // delay in loop context is save for wdt
   }
 } // void senden
 
