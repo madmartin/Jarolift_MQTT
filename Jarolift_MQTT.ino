@@ -253,15 +253,12 @@ void setup()
   mqtt_client.setCallback(mqtt_callback);   // define Handler for incoming messages
   mqttLastConnectAttempt = 0;
 
-  pinMode(4, OUTPUT); // TX Pin
+  pinMode(TX_PORT, OUTPUT); // TX Pin
 
   // RX
   pinMode(RX_PORT, INPUT_PULLUP);
   attachInterrupt(RX_PORT, measure, CHANGE); // Interrupt @Inputpin
 
-  Serial.printf("size of int: %d\n", sizeof(rx_device_key_lsb));
-  unsigned long lala=0;
-  Serial.printf("size of long: %d\n", sizeof(lala));
 } // void setup
 
 //####################################################################
@@ -442,18 +439,18 @@ void loop()
 //####################################################################
 // Generation of the encrypted message (Hopcode)
 //####################################################################
-int keeloq () {
+void keeloq () {
   Keeloq k(device_key_msb, device_key_lsb);
   unsigned int result = (disc << 16) | devcnt;  // Append counter value to discrimination value
   dec = k.encrypt(result);
-} // int keeloq
+} // void keeloq
 
 //####################################################################
 // Keygen generates the device crypt key in relation to the masterkey and provided serial number.
 // Here normal key-generation is used according to 00745a_c.PDF Appendix G.
 // https://github.com/hnhkj/documents/blob/master/KEELOQ/docs/AN745/00745a_c.pdf
 //####################################################################
-int keygen () {
+void keygen () {
   Keeloq k(config.ulMasterMSB, config.ulMasterLSB);
   uint64_t keylow = new_serial | 0x20000000;
   unsigned long enc = k.decrypt(keylow);
@@ -462,8 +459,8 @@ int keygen () {
   enc    = k.decrypt(keylow);
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
-  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
-} // int keygen
+  Serial.printf(" created devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
+} // void keygen
 
 //####################################################################
 // Simple TX routine. Repetitions for simulate continuous button press.
@@ -540,7 +537,7 @@ void frame(int l) {
 //####################################################################
 // Calculate device code from received serial number
 //####################################################################
-int rx_keygen () {
+void rx_keygen () {
   Keeloq k(config.ulMasterMSB, config.ulMasterLSB);
   uint32_t keylow = rx_serial | 0x20000000;
   unsigned long enc = k.decrypt(keylow);
@@ -549,13 +546,13 @@ int rx_keygen () {
   enc    = k.decrypt(keylow);
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
-  Serial.printf(" devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
-} // int rx_keygen
+  Serial.printf(" received devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
+} // void rx_keygen
 
 //####################################################################
 // Decoding of the hopping code
 //####################################################################
-int rx_decoder () {
+void rx_decoder () {
   Keeloq k(rx_device_key_msb, rx_device_key_lsb);
   unsigned int result = rx_hopcode;
   decoded = k.decrypt(result);
@@ -563,7 +560,7 @@ int rx_decoder () {
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
 
   Serial.printf(" // decoded: 0x%08x\n\n",decoded);
-} // int rx_decoder
+} // void rx_decoder
 
 //####################################################################
 // calculate RSSI value (Received Signal Strength Indicator)
@@ -1061,5 +1058,5 @@ void time_is_set(void) {
     time_is_set_first = false;
     WriteLog("[INFO] - time set from NTP server", true);
   }
-  Serial.println("--- settimeofday() was called ---");
+  // Serial.println("--- settimeofday() was called ---");   // it is called periodically every hour
 }
