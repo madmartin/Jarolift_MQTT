@@ -238,8 +238,10 @@ void setup()
   server.on ( "/api", html_api );                       // command api
   SPIFFS.begin();                                       // Start the SPI flash filesystem
   server.onNotFound([]() {                              // If the client requests any URI
-    if (!handleFileRead(server.uri()))                  // send it if it exists
+    if (!handleFileRead(server.uri())) {                // send it if it exists
       server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
+      Serial.println(" File not found: did you upload the data directory?");
+    }
   });
 
   server.begin();
