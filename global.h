@@ -41,7 +41,7 @@ boolean AdminEnabled = false;                     // Admin-Mode opens AccessPoin
 int AdminTimeOutCounter = 0;                      // Counter for Disabling the Admin-Mode
 boolean wifi_disconnect_log = true;               // Flag to avoid repeated logging of disconnect events
 int led_pin = LED_BUILTIN;                        // GPIO Pin number for LED
-Ticker tkSecond;                                  // Second - Timer for Updating Datetime Structure
+Ticker tkHeartBeat;                               // Timer for HeartBeat
 unsigned short devcnt = 0x0;                      // Initial 16Bit countervalue, will be stored in EEPROM and
                                                   //   incremented once every time a command is send
 int cntadr = 110;                                 // EEPROM address where the 16Bit counter is stored.
@@ -389,5 +389,37 @@ void Admin_Mode_Timeout()
 {
   AdminTimeOutCounter++;
 } // void Admin_Mode_Timeout
+
+//####################################################################
+// Callback function for LED HeartBeat
+//####################################################################
+boolean highPulse=true;
+#define HEART_BEAT_CYCLE 4                       // HeartBeat cycle in seconds
+void HeartBeat()
+{
+  float pulse_on  = 0.05;                        // LED on for 50 milliseconds in normal mode
+  float pulse_off = HEART_BEAT_CYCLE - pulse_on;
+
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    pulse_on  = HEART_BEAT_CYCLE / 2;            // LED on for 2 seconds, 2 seconds off while waiting for WiFi connect
+    pulse_off = pulse_on;
+  }
+
+  if (AdminEnabled)
+  {
+    AdminTimeOutCounter++;
+    pulse_off = 0.05;
+    pulse_on  = HEART_BEAT_CYCLE - pulse_off;    // LED off for 50 milliseconds in admin mode
+  }
+
+  if (highPulse)
+    tkHeartBeat.attach(pulse_on, HeartBeat);
+  else
+    tkHeartBeat.attach(pulse_off, HeartBeat);
+
+  highPulse = !highPulse;
+  digitalWrite(led_pin, highPulse);              // toogle LED
+} // void HeartBeat
 
 #endif
