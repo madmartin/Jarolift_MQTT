@@ -244,7 +244,7 @@ void setup()
 
   server.begin();
   WriteLog("[INFO] - HTTP server started", true);
-  tkSecond.attach(1, Admin_Mode_Timeout);
+  tkHeartBeat.attach(1, HeartBeat);
 
   // configure MQTT client
   mqtt_client.setServer(IPAddress(config.mqtt_broker_addr[0], config.mqtt_broker_addr[1],
@@ -305,7 +305,7 @@ void loop()
   // disable Admin-Mode after AdminTimeOut
   if (AdminEnabled)
   {
-    if (AdminTimeOutCounter > AdminTimeOut)
+    if (AdminTimeOutCounter > AdminTimeOut / HEART_BEAT_CYCLE)
     {
       AdminEnabled = false;
       digitalWrite(led_pin, HIGH);   // turn LED off
