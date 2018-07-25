@@ -1048,7 +1048,7 @@ boolean mqtt_connect() {
 //####################################################################
 void updateNTP() {
   configTime(TIMEZONE * 3600, 0, NTP_SERVERS);
-} // updateNTP
+} // void updateNTP
 
 //####################################################################
 // callback function when time is set via SNTP
@@ -1058,5 +1058,4 @@ void time_is_set(void) {
     time_is_set_first = false;
     WriteLog("[INFO] - time set from NTP server", true);
   }
-  // Serial.println("--- settimeofday() was called ---");   // it is called periodically every hour
-}
+} // void time_is_set
