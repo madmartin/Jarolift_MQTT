@@ -1,0 +1,16 @@
+## OS specific ########
+.DS_Store
+.fuse_hidden*
+.*.swp
+.*.kate-swp
+
+## Project files ######
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.vscode
+user_config_override.h
+
+## compiled binaries
+*.bin
