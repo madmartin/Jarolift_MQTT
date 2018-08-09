@@ -358,7 +358,7 @@ void InitializeConfigData()
     config.ip[0] = 192; config.ip[1] = 168; config.ip[2] = 1; config.ip[3] = 100;
     config.netmask[0] = 255; config.netmask[1] = 255; config.netmask[2] = 255; config.netmask[3] = 0;
     config.gateway[0] = 192; config.gateway[1] = 168; config.gateway[2] = 1; config.gateway[3] = 1;
-    config.mqtt_broker_addr[0] = 192; config.mqtt_broker_addr[1] = 168; config.mqtt_broker_addr[2] = 1; config.mqtt_broker_addr[3] = 1;
+    config.mqtt_broker_addr[0] = 0; config.mqtt_broker_addr[1] = 0; config.mqtt_broker_addr[2] = 0; config.mqtt_broker_addr[3] = 0;
     config.mqtt_broker_port = "1883";
     config.mqtt_broker_client_id = "JaroliftDongle";
     config.mqtt_broker_client_id += chipIdString;
