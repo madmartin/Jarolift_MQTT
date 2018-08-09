@@ -238,8 +238,10 @@ void setup()
   server.on ( "/api", html_api );                       // command api
   SPIFFS.begin();                                       // Start the SPI flash filesystem
   server.onNotFound([]() {                              // If the client requests any URI
-    if (!handleFileRead(server.uri()))                  // send it if it exists
+    if (!handleFileRead(server.uri())) {                // send it if it exists
       server.send(404, "text/plain", "404: Not Found"); // otherwise, respond with a 404 (Not Found) error
+      Serial.println(" File not found: did you upload the data directory?");
+    }
   });
 
   server.begin();
@@ -385,22 +387,25 @@ void loop()
     rx_function = 0;
   }
 
-  // establish connection to MQTT broker
-  if (WiFi.status() == WL_CONNECTED) {
-    if (!mqtt_client.connected()) {
-      // calculate time since last connection attempt
-      long now = millis();
-      // possible values of mqttLastReconnectAttempt:
-      // 0  => never attempted to connect
-      // >0 => at least one connect attempt was made
-      if ((mqttLastConnectAttempt == 0) || (now - mqttLastConnectAttempt > MQTT_Reconnect_Interval)) {
-        mqttLastConnectAttempt = now;
-        // attempt to connect
-        mqtt_connect();
+  // If you do not use a MQTT broker so configure the address 0.0.0.0
+  if (config.mqtt_broker_addr[0] + config.mqtt_broker_addr[1] + config.mqtt_broker_addr[2] + config.mqtt_broker_addr[3]) {
+    // establish connection to MQTT broker
+    if (WiFi.status() == WL_CONNECTED) {
+      if (!mqtt_client.connected()) {
+        // calculate time since last connection attempt
+        long now = millis();
+        // possible values of mqttLastReconnectAttempt:
+        // 0  => never attempted to connect
+        // >0 => at least one connect attempt was made
+        if ((mqttLastConnectAttempt == 0) || (now - mqttLastConnectAttempt > MQTT_Reconnect_Interval)) {
+          mqttLastConnectAttempt = now;
+          // attempt to connect
+          mqtt_connect();
+        }
+      } else {
+        // client is connected, call the mqtt loop
+        mqtt_client.loop();
       }
-    } else {
-      // client is connected, call the mqtt loop
-      mqtt_client.loop();
     }
   }
 
