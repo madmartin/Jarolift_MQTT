@@ -174,19 +174,19 @@ void setup()
   Serial.begin(115200);
   settimeofday_cb(time_is_set);
   updateNTP(); // Init the NTP time
-  WriteLog("[INFO] - starting Jarolift Dongle "+ (String)PROGRAM_VERSION, true);
-  WriteLog("[INFO] - ESP-ID "+ (String)ESP.getChipId()+ " // ESP-Core  "+ ESP.getCoreVersion()+ " // SDK Version "+ ESP.getSdkVersion(), true);
+  WriteLog("[INFO] - starting Jarolift Dongle " + (String)PROGRAM_VERSION, true);
+  WriteLog("[INFO] - ESP-ID " + (String)ESP.getChipId() + " // ESP-Core  " + ESP.getCoreVersion() + " // SDK Version " + ESP.getSdkVersion(), true);
 
   // callback functions for WiFi connect and disconnect
   // placed as early as possible in the setup() function to get the connect
   // message catched when the WiFi connect is really fast
-  gotIpEventHandler = WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP& event)
+  gotIpEventHandler = WiFi.onStationModeGotIP([](const WiFiEventStationModeGotIP & event)
   {
-    WriteLog("[INFO] - WiFi station connected - IP: "+ WiFi.localIP().toString(), true);
+    WriteLog("[INFO] - WiFi station connected - IP: " + WiFi.localIP().toString(), true);
     wifi_disconnect_log = true;
   });
 
-  disconnectedEventHandler = WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected& event)
+  disconnectedEventHandler = WiFi.onStationModeDisconnected([](const WiFiEventStationModeDisconnected & event)
   {
     if (wifi_disconnect_log) {
       WriteLog("[INFO] - WiFi station disconnected", true);
@@ -224,7 +224,7 @@ void setup()
     wifi_disconnect_log = false;
     WiFi.mode(WIFI_AP);
     WriteLog(WiFi.softAP(ACCESS_POINT_NAME, ACCESS_POINT_PASSWORD) ? "Ready" : "Failed!", true);
-    WriteLog("[WARN] - Access Point <" + (String)ACCESS_POINT_NAME + "> activated. WPA password is "+ ACCESS_POINT_PASSWORD, true);
+    WriteLog("[WARN] - Access Point <" + (String)ACCESS_POINT_NAME + "> activated. WPA password is " + ACCESS_POINT_PASSWORD, true);
     WriteLog("[WARN] - you have " + (String)AdminTimeOut + " seconds time to connect and configure!", true);
     WriteLog("[WARN] - configuration webserver is http://" + WiFi.softAPIP().toString(), true);
   }
@@ -371,8 +371,6 @@ void loop()
       }
     }
 
-    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
-
     rx_disc_high[0] = rx_disc_h & 0xFF;
     rx_keygen ();
     rx_decoder();
@@ -382,6 +380,42 @@ void loop()
       rx_function = 0x3;
       steadycnt = 0;
     }
+
+    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n", rx_serial, rx_function, rx_disc_h);
+
+	//mqtt Message with received Data:
+    if (mqtt_client.connected()) {
+      String Topic = "stat/" + config.mqtt_devicetopic + "/received/";
+      char serial[16];
+      itoa(rx_serial, serial, 16);
+
+      char lsb[16];
+      itoa(rx_device_key_lsb, lsb, 16);
+
+      char msb[16];
+      itoa(rx_device_key_msb, msb, 16);
+
+      char chr_decoded[16];
+      itoa(decoded, chr_decoded, 16);
+
+      const char * msg = Topic.c_str();
+
+      String Payload;
+      Payload = "{\"serial\":\"" + String(serial) + "\", "
+                + "\"rx-function\":\"" + String(rx_function, HEX) + "\", "
+                + "\"rx_disc_low\":\"" + (int)rx_disc_low[0] + "\", "
+                + "\"rx_disc_high\":" + (int)rx_disc_h + ", "
+                + "\"RSSI\":" + (int)value + ", "
+                + "\"counter\":" + (int)rx_disc_low[2] + ", "
+                + "\"rx_device_key_lsb\":" + "\"" + String(lsb) + "\"" + ", "
+                + "\"rx_device_key_msb\":" + "\"" + String(msb) + "\"" + ", "
+                + "\"decoded\":" +  "\"" + String(chr_decoded) +  "\"" + "}";
+
+      const char * txt = Payload.c_str();
+      mqtt_client.publish(msg, txt);
+
+    }
+
     rx_disc_h = 0;
     rx_hopcode = 0;
     rx_function = 0;
@@ -428,6 +462,8 @@ void loop()
       cmd_shade(web_cmd_channel);
     } else if (web_cmd == "learn") {
       cmd_learn(web_cmd_channel);
+    } else if (web_cmd == "updown") {
+      cmd_updown(web_cmd_channel);
     } else if (web_cmd == "save") {
       Serial.println("main loop: in web_cmd save");
       cmd_save_config();
@@ -464,7 +500,7 @@ void keygen () {
   enc    = k.decrypt(keylow);
   device_key_msb  = enc;              // Stores MSB devicekey 16Bit
 
-  Serial.printf(" created devicekey low: 0x%08x // high: 0x%08x\n",device_key_lsb, device_key_msb);
+  Serial.printf(" created devicekey low: 0x%08x // high: 0x%08x\n", device_key_lsb, device_key_msb);
 } // void keygen
 
 //####################################################################
@@ -551,7 +587,7 @@ void rx_keygen () {
   enc    = k.decrypt(keylow);
   rx_device_key_msb  = enc;        // Stores MSB devicekey 16Bit
 
-  Serial.printf(" received devicekey low: 0x%08x // high: 0x%08x",rx_device_key_lsb, rx_device_key_msb);
+  Serial.printf(" received devicekey low: 0x%08x // high: 0x%08x", rx_device_key_lsb, rx_device_key_msb);
 } // void rx_keygen
 
 //####################################################################
@@ -563,8 +599,12 @@ void rx_decoder () {
   decoded = k.decrypt(result);
   rx_disc_low[0] = (decoded >> 24) & 0xFF;
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
+  rx_disc_low[2] = (decoded >> 32) & 0xFF;
 
-  Serial.printf(" // decoded: 0x%08x\n\n",decoded);
+  Serial.printf(" // decoded: 0x%08x\n\n", decoded);
+  Serial.printf(" // rx_disc_low[0]: 0x%08x\n\n", rx_disc_low[0]);
+  Serial.printf(" // rx_disc_low[1]: 0x%08x\n\n", rx_disc_low[1]);
+  Serial.printf(" // rx_disc_low[2]: 0x%08x\n\n", rx_disc_low[2]);
 } // void rx_decoder
 
 //####################################################################
@@ -621,7 +661,7 @@ void entertx() {
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   if (debug_mqtt) {
-    Serial.printf("mqtt in: %s - ",topic);
+    Serial.printf("mqtt in: %s - ", topic);
     for (int i = 0; i < length; i++) {
       Serial.print((char)payload[i]);
     }
@@ -633,14 +673,14 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
   char * token = strtok(topic, "/");  // initialize token
   token = strtok(NULL, "/");          // now token = 2nd token
   token = strtok(NULL, "/");          // now token = 3rd token, "shutter" or so
-  if (debug_mqtt) Serial.printf("command token: %s\n",token);
-  if (strncmp(token,"shutter",7) == 0) {
+  if (debug_mqtt) Serial.printf("command token: %s\n", token);
+  if (strncmp(token, "shutter", 7) == 0) {
     token = strtok(NULL, "/");
     if (token != NULL) {
-       channel = atoi(token);
+      channel = atoi(token);
     }
-  } else if (strncmp(token,"sendconfig",10) == 0) {
-    WriteLog("[INFO] - incoming MQTT command: sendconfig",true);
+  } else if (strncmp(token, "sendconfig", 10) == 0) {
+    WriteLog("[INFO] - incoming MQTT command: sendconfig", true);
     mqtt_send_config();
     return;
   } else {
@@ -674,6 +714,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
       cmd_shade(channel);
     } else if (cmd == "LEARN") {
       cmd_learn(channel);
+    } else if (cmd == "UPDOWN") {
+      cmd_updown(channel);
     } else {
       WriteLog("[ERR ] - incoming MQTT payload unknown.", true);
     }
@@ -691,7 +733,7 @@ void devcnt_handler(boolean do_increment) {
   EEPROM.put(cntadr, devcnt);
   EEPROM.commit();
   if (mqtt_client.connected()) {
-    String Topic = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
+    String Topic = "stat/" + config.mqtt_devicetopic + "/devicecounter";
     const char * msg = Topic.c_str();
     char devcntstr[10];
     itoa(devcnt, devcntstr, 10);
@@ -703,16 +745,16 @@ void devcnt_handler(boolean do_increment) {
 // send status via mqtt
 //####################################################################
 void mqtt_send_percent_closed_state(int channelNum, int percent, String command) {
-  if (percent>100) percent = 100;
-  if (percent<0) percent = 0;
+  if (percent > 100) percent = 100;
+  if (percent < 0) percent = 0;
   if (mqtt_client.connected()) {
     char percentstr[4];
     itoa(percent, percentstr, 10);
-    String Topic = "stat/"+ config.mqtt_devicetopic+ "/shutter/" + (String)channelNum;
+    String Topic = "stat/" + config.mqtt_devicetopic + "/shutter/" + (String)channelNum;
     const char * msg = Topic.c_str();
     mqtt_client.publish(msg, percentstr);
   }
-  WriteLog("[INFO] - command "+ command+ " for channel "+ (String)channelNum+ " ("+ config.channel_name[channelNum]+ ") sent.", true);
+  WriteLog("[INFO] - command " + command + " for channel " + (String)channelNum + " (" + config.channel_name[channelNum] + ") sent.", true);
 } // void mqtt_send_percent_closed_state
 
 //####################################################################
@@ -736,7 +778,7 @@ void mqtt_send_config() {
         EEPROM.get(adresses[channelNum], new_serial);
         sprintf(numBuffer, "0x%08x", new_serial);
         Payload += "{\"id\":" + String(channelNum) + ", \"name\":\"" + config.channel_name[channelNum] + "\", "
-                 + "\"serial\":\"" + numBuffer +  "\"}";
+                   + "\"serial\":\"" + numBuffer +  "\"}";
         lineCnt++;
 
         if (lineCnt >= 4) {
@@ -756,10 +798,10 @@ void mqtt_send_config() {
     // send most important other config info
     snprintf(numBuffer, 15, "%d", devcnt);
     Payload = "{\"serialprefix\":\"" + config.serial + "\", "
-            + "\"mqtt-clientid\":\"" + config.mqtt_broker_client_id + "\", "
-            + "\"mqtt-devicetopic\":\"" + config.mqtt_devicetopic + "\", "
-            + "\"devicecounter\":" + (String)numBuffer + ", "
-            + "\"new_learn_mode\":" + (String)config.learn_mode + "}";
+              + "\"mqtt-clientid\":\"" + config.mqtt_broker_client_id + "\", "
+              + "\"mqtt-devicetopic\":\"" + config.mqtt_devicetopic + "\", "
+              + "\"devicecounter\":" + (String)numBuffer + ", "
+              + "\"new_learn_mode\":" + (String)config.learn_mode + "}";
     mqtt_send_config_line(configCnt, Payload);
   } // if (mqtt_client.connected())
 } // void mqtt_send_config
@@ -768,7 +810,7 @@ void mqtt_send_config() {
 // send one config telegram via mqtt
 //####################################################################
 void mqtt_send_config_line(int & counter, String Payload) {
-  String Topic = "stat/"+ config.mqtt_devicetopic+ "/config/" + (String)counter;
+  String Topic = "stat/" + config.mqtt_devicetopic + "/config/" + (String)counter;
   if (debug_mqtt) Serial.println("mqtt send: " + Topic + " - " + Payload);
   mqtt_client.publish(Topic.c_str(), Payload.c_str());
   counter++;
@@ -849,7 +891,7 @@ void cmd_stop(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  WriteLog("[INFO] - command STOP for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  WriteLog("[INFO] - command STOP for channel " + (String)channel + " (" + config.channel_name[channel] + ") sent.", true);
   devcnt_handler(true);
 } // void cmd_stop
 
@@ -906,7 +948,7 @@ void cmd_set_shade_position(int channel) {
   rx_serial_array[1] = (new_serial >> 16) & 0xFF;
   rx_serial_array[2] = (new_serial >> 8) & 0xFF;
   rx_serial_array[3] = new_serial & 0xFF;
-  WriteLog("[INFO] - command SET SHADE for channel "+ (String)channel+ " ("+ config.channel_name[channel]+ ") sent.", true);
+  WriteLog("[INFO] - command SET SHADE for channel " + (String)channel + " (" + config.channel_name[channel] + ") sent.", true);
   devcnt_handler(false);
   delay(2000); // Safety time to prevent accidentally erase of end-points.
 } // void cmd_set_shade_position
@@ -946,6 +988,27 @@ void cmd_learn(int channel) {
 } // void cmd_learn
 
 //####################################################################
+// function to put the dongle into the learn mode (UP/DOWN at same time)
+//####################################################################
+void cmd_updown(int channel) {
+  WriteLog("[INFO] - putting channel " +  (String) channel + " into up/down mode ...", false);
+  new_serial = EEPROM.get(adresses[channel], new_serial);
+  EEPROM.get(cntadr, devcnt);
+  button = 0xA;                           // New learn method. Up+Down
+  disc_l = disc_low[channel] ;
+  disc_h = disc_high[channel];
+  disc = (disc_l << 8) | serials[channel];
+  keygen();
+  keeloq();
+  entertx();
+  senden(1);
+  enterrx();
+  devcnt++;
+  devcnt_handler(false);
+  WriteLog("Channel up/down send!", true);
+} // void cmd_updown
+
+//####################################################################
 // webUI save config function
 //####################################################################
 void cmd_save_config() {
@@ -955,10 +1018,10 @@ void cmd_save_config() {
     // in case the devicetopic has changed, the LWT state with the old devicetopic should go away
     WriteLog("[CFG ] - devicetopic changed, gracefully disconnect from mqtt server", true);
     // first we send an empty message that overwrites the retained "Online" message
-    String topicOld = "tele/"+ config.mqtt_devicetopic+ "/LWT";
+    String topicOld = "tele/" + config.mqtt_devicetopic + "/LWT";
     mqtt_client.publish(topicOld.c_str(), "", true);
     // next: remove retained "devicecounter" message
-    topicOld = "stat/"+ config.mqtt_devicetopic+ "/devicecounter";
+    topicOld = "stat/" + config.mqtt_devicetopic + "/devicecounter";
     mqtt_client.publish(topicOld.c_str(), "", true);
     delay(200);
     // finally we disconnect gracefully from the mqtt broker so the stored LWT "Offline" message is discarded
@@ -1028,11 +1091,11 @@ boolean mqtt_connect() {
   const char* client_id = config.mqtt_broker_client_id.c_str();
   const char* username = config.mqtt_broker_username.c_str();
   const char* password = config.mqtt_broker_password.c_str();
-  String willTopic = "tele/"+ config.mqtt_devicetopic+ "/LWT"; // connect with included "Last-Will-and-Testament" message
+  String willTopic = "tele/" + config.mqtt_devicetopic + "/LWT"; // connect with included "Last-Will-and-Testament" message
   uint8_t willQos = 0;
   boolean willRetain = true;
   const char* willMessage = "Offline";           // LWT message says "Offline"
-  String subscribeString = "cmd/"+ config.mqtt_devicetopic+ "/#";
+  String subscribeString = "cmd/" + config.mqtt_devicetopic + "/#";
 
   WriteLog("[INFO] - trying to connect to MQTT broker", true);
   // try to connect to MQTT
@@ -1043,7 +1106,7 @@ boolean mqtt_connect() {
     // publish telemetry message "we are online now"
     mqtt_client.publish(willTopic.c_str(), "Online", true);
   } else {
-    WriteLog("[ERR ] - MQTT connect failed, rc ="+ (String)mqtt_client.state(), true);
+    WriteLog("[ERR ] - MQTT connect failed, rc =" + (String)mqtt_client.state(), true);
   }
   return mqtt_client.connected();
 } // boolean mqtt_connect
