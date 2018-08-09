@@ -2,6 +2,10 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2018-08-09
+* now it's possible to use the dongle only via the WebUI, by configure NO MQTT broker 
+* a heartbeat function lets blink the NodeMCU/ESP's LED every 4sec
+
 ##### 2018-07-07 v0.7
 * rework use of web_log_message[] array, now a circular buffer
 * fix logging of "incoming MQTT command unknown"

@@ -66,10 +66,26 @@ TODO write a more detailed description
 #### Check the board settings
 In menu "Tools" set the correct board type. If you have any kind of NodeMCU, the board
 ``NodeMCU 1.0 (ESP-12E Module`` will probably work.
-The following settings have proofed to work with a NodeMCU v1.0/V2 [comparison of boards](https://frightanic.com/iot/comparison-of-esp8266-nodemcu-development-boards/)
 
-##### ESP Core 2.4.1
+You may look at the wiki for [pictures of the modules](https://github.com/madmartin/Jarolift_MQTT/wiki/Devices) or at this [comparison of boards](https://frightanic.com/iot/comparison-of-esp8266-nodemcu-development-boards/).
+
+There are two possible pitfalls when choosing the wrong board type or changing between board types:
+* the LED on the board may work / not work - necessary for the LED heardbeat and Admin-Mode.
+* take a look at the flash size and the SPIFFS setting - a changed SPIFFS setting needs a new upload of the SPIFFS data files and an existing configuration may be not be found on next boot, then it is initialized with default values.
+
+Note on the LED on the board:
+
+The following settings have proofed to work:
+
+##### ESP Core 2.4.1 / NodeMCU v1.0/V2
 * Board: "NodeMCU 1.0 (ESP-12E Module)"
+* Flash Size: "4M (1M SPIFFS)"
+* lwIP variant: "v2 Lower Memory"
+* CPU Frequency: "80 MHz"
+* Upload speed: "115200"
+
+##### ESP Core 2.4.1 / NodeMCU v3 and WeMos mini & its clones
+* Board: "WeMos mini D1 R2 & mini"
 * Flash Size: "4M (1M SPIFFS)"
 * lwIP variant: "v2 Lower Memory"
 * CPU Frequency: "80 MHz"
