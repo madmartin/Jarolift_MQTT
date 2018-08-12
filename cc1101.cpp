@@ -183,6 +183,8 @@ void CC1101::readBurstReg(byte * buffer, byte regAddr, byte len)
   cc1101_Deselect();                    // Deselect CC1101
 }
 
+// define external function
+void WriteLog(String msg, boolean new_line = false);
 /**
  * reset
  * 
@@ -203,6 +205,13 @@ void CC1101::reset(void)
   wait_Miso();                          // Wait until MISO goes low
 
   cc1101_Deselect();                    // Deselect CC1101
+
+  // test if module is working properly
+  if ((readStatusReg(CC1101_TXBYTES)  & 0x7F) != 0)
+  {
+    WriteLog("[WARN] - CC1101 module can not be configured!", true);
+    return;
+  }
 
   setCCregs();                          // Reconfigure CC1101
 }
