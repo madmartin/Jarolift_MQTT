@@ -371,8 +371,6 @@ void loop()
       }
     }
 
-    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n",rx_serial,rx_function,rx_disc_h);
-
     rx_disc_high[0] = rx_disc_h & 0xFF;
     rx_keygen ();
     rx_decoder();
@@ -382,6 +380,42 @@ void loop()
       rx_function = 0x3;
       steadycnt = 0;
     }
+
+    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n", rx_serial, rx_function, rx_disc_h);
+
+	//mqtt Message with received Data:
+    if (mqtt_client.connected()) {
+      String Topic = "stat/" + config.mqtt_devicetopic + "/received/";
+      char serial[16];
+      itoa(rx_serial, serial, 16);
+
+      char lsb[16];
+      itoa(rx_device_key_lsb, lsb, 16);
+
+      char msb[16];
+      itoa(rx_device_key_msb, msb, 16);
+
+      char chr_decoded[16];
+      itoa(decoded, chr_decoded, 16);
+
+      const char * msg = Topic.c_str();
+
+      String Payload;
+      Payload = "{\"serial\":\"" + String(serial) + "\", "
+                + "\"rx-function\":\"" + String(rx_function, HEX) + "\", "
+                + "\"rx_disc_low\":\"" + (int)rx_disc_low[0] + "\", "
+                + "\"rx_disc_high\":" + (int)rx_disc_h + ", "
+                + "\"RSSI\":" + (int)value + ", "
+                + "\"counter\":" + (int)rx_disc_low[2] + ", "
+                + "\"rx_device_key_lsb\":" + "\"" + String(lsb) + "\"" + ", "
+                + "\"rx_device_key_msb\":" + "\"" + String(msb) + "\"" + ", "
+                + "\"decoded\":" +  "\"" + String(chr_decoded) +  "\"" + "}";
+
+      const char * txt = Payload.c_str();
+      mqtt_client.publish(msg, txt);
+
+    }
+
     rx_disc_h = 0;
     rx_hopcode = 0;
     rx_function = 0;
