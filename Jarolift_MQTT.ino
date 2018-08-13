@@ -462,6 +462,8 @@ void loop()
       cmd_shade(web_cmd_channel);
     } else if (web_cmd == "learn") {
       cmd_learn(web_cmd_channel);
+    } else if (web_cmd == "updown") {
+      cmd_updown(web_cmd_channel);
     } else if (web_cmd == "save") {
       Serial.println("main loop: in web_cmd save");
       cmd_save_config();
@@ -708,6 +710,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
       cmd_shade(channel);
     } else if (cmd == "LEARN") {
       cmd_learn(channel);
+    } else if (cmd == "UPDOWN") {
+      cmd_updown(channel);
     } else {
       WriteLog("[ERR ] - incoming MQTT payload unknown.", true);
     }
@@ -978,6 +982,27 @@ void cmd_learn(int channel) {
   devcnt_handler(false);
   WriteLog("Channel learned!", true);
 } // void cmd_learn
+
+//####################################################################
+// function to put the dongle into the learn mode (UP/DOWN at same time)
+//####################################################################
+void cmd_updown(int channel) {
+  WriteLog("[INFO] - putting channel " +  (String) channel + " into up/down mode ...", false);
+  new_serial = EEPROM.get(adresses[channel], new_serial);
+  EEPROM.get(cntadr, devcnt);
+  button = 0xA;                           // New learn method. Up+Down
+  disc_l = disc_low[channel] ;
+  disc_h = disc_high[channel];
+  disc = (disc_l << 8) | serials[channel];
+  keygen();
+  keeloq();
+  entertx();
+  senden(1);
+  enterrx();
+  devcnt++;
+  devcnt_handler(false);
+  WriteLog("Channel up/down send!", true);
+} // void cmd_updown
 
 //####################################################################
 // webUI save config function
