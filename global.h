@@ -42,8 +42,7 @@ int AdminTimeOutCounter = 0;                      // Counter for Disabling the A
 boolean wifi_disconnect_log = true;               // Flag to avoid repeated logging of disconnect events
 int led_pin = LED_BUILTIN;                        // GPIO Pin number for LED
 Ticker tkHeartBeat;                               // Timer for HeartBeat
-unsigned short devcnt = 0x0;                      // Initial 16Bit countervalue, will be stored in EEPROM and
-                                                  //   incremented once every time a command is send
+unsigned short devcnt = 0x0;                      // Initial 16Bit countervalue, stored in EEPROM and incremented once every time a command is send
 int cntadr = 110;                                 // EEPROM address where the 16Bit counter is stored.
 
 String web_cmd = "";                              // trigger to run a command whenever a action button has been pressed on the web interface
@@ -78,7 +77,7 @@ struct strConfig {
   unsigned long ulMasterMSB;
   unsigned long ulMasterLSB;
   boolean learn_mode;         // If set to true, regular learn method is used (up+down, followed by stop).
-                              // If set to false another method for older versions of Jarolift motors is used.
+  // If set to false another method for older versions of Jarolift motors is used.
   String  serial;             // starting serial number as string
   uint32_t serial_number;     // starting serial number as integer
   String  channel_name[16];
@@ -106,11 +105,11 @@ void InitLog()
 //####################################################################
 void WriteLog(String msg, boolean new_line = false)
 {
-// web_log_message[] is an array of strings, used as a circular buffer
-// web_log_message_nextfree points to the next free-to-use buffer line
-// when web_log_message_nextfree becomes larger than NUM_WEB_LOG_MESSAGES,
-// it is reset to 0 and web_log_message_rotated=true
-// web_log_message_newline indicates whether we are at the beginning of a line or not
+  // web_log_message[] is an array of strings, used as a circular buffer
+  // web_log_message_nextfree points to the next free-to-use buffer line
+  // when web_log_message_nextfree becomes larger than NUM_WEB_LOG_MESSAGES,
+  // it is reset to 0 and web_log_message_rotated=true
+  // web_log_message_newline indicates whether we are at the beginning of a line or not
 
   if (web_log_message_newline) {
     char *dstAbbrev;
@@ -236,16 +235,16 @@ boolean ReadConfig()
   {
     if (EEPROM.read(120) == 'C' && EEPROM.read(121) == 'f'  && EEPROM.read(122) == 'g' )
     {
-      EEPROM.get(123,config.cfgVersion);
-      WriteLog("config version "+ (String) config.cfgVersion+ " found", true);
+      EEPROM.get(123, config.cfgVersion);
+      WriteLog("config version " + (String) config.cfgVersion + " found", true);
     }
   }
-  if (config.cfgVersion==0)
+  if (config.cfgVersion == 0)
   {
     WriteLog(" no configuration found in EEPROM!!!!", true);
     return false;
   }
-  if (config.cfgVersion<=2)   // read config parts up to version 2
+  if (config.cfgVersion <= 2) // read config parts up to version 2
   {
     config.dhcp = EEPROM.read(128);
     config.ip[0] = EEPROM.read(144);
@@ -265,40 +264,40 @@ boolean ReadConfig()
     config.mqtt_broker_addr[2] = EEPROM.read(158);
     config.mqtt_broker_addr[3] = EEPROM.read(159);
 
-    config.ssid = ReadStringFromEEPROM(164,32);
-    config.password = ReadStringFromEEPROM(196,64);
-    config.mqtt_broker_port = ReadStringFromEEPROM(262,6);
-    config.master_msb = ReadStringFromEEPROM(270,10);
-    config.master_lsb = ReadStringFromEEPROM(330,10);
+    config.ssid = ReadStringFromEEPROM(164, 32);
+    config.password = ReadStringFromEEPROM(196, 64);
+    config.mqtt_broker_port = ReadStringFromEEPROM(262, 6);
+    config.master_msb = ReadStringFromEEPROM(270, 10);
+    config.master_lsb = ReadStringFromEEPROM(330, 10);
     config.learn_mode = EEPROM.read(350);
-    config.serial = ReadStringFromEEPROM(366,10);
+    config.serial = ReadStringFromEEPROM(366, 10);
 
-    config.mqtt_broker_client_id = ReadStringFromEEPROM(375,25);
-    config.mqtt_broker_username = ReadStringFromEEPROM(400,25);
-    config.mqtt_broker_password = ReadStringFromEEPROM(450,25);
+    config.mqtt_broker_client_id = ReadStringFromEEPROM(375, 25);
+    config.mqtt_broker_username = ReadStringFromEEPROM(400, 25);
+    config.mqtt_broker_password = ReadStringFromEEPROM(450, 25);
 
-    config.channel_name[0] = ReadStringFromEEPROM(500,25);
-    config.channel_name[1] = ReadStringFromEEPROM(550,25);
-    config.channel_name[2] = ReadStringFromEEPROM(600,25);
-    config.channel_name[3] = ReadStringFromEEPROM(650,25);
-    config.channel_name[4] = ReadStringFromEEPROM(700,25);
-    config.channel_name[5] = ReadStringFromEEPROM(750,25);
-    config.channel_name[6] = ReadStringFromEEPROM(800,25);
-    config.channel_name[7] = ReadStringFromEEPROM(850,25);
-    config.channel_name[8] = ReadStringFromEEPROM(900,25);
-    config.channel_name[9] = ReadStringFromEEPROM(950,25);
-    config.channel_name[10] = ReadStringFromEEPROM(1000,25);
-    config.channel_name[11] = ReadStringFromEEPROM(1050,25);
-    config.channel_name[12] = ReadStringFromEEPROM(1100,25);
-    config.channel_name[13] = ReadStringFromEEPROM(1150,25);
-    config.channel_name[14] = ReadStringFromEEPROM(1200,25);
-    config.channel_name[15] = ReadStringFromEEPROM(1250,25);
+    config.channel_name[0] = ReadStringFromEEPROM(500, 25);
+    config.channel_name[1] = ReadStringFromEEPROM(550, 25);
+    config.channel_name[2] = ReadStringFromEEPROM(600, 25);
+    config.channel_name[3] = ReadStringFromEEPROM(650, 25);
+    config.channel_name[4] = ReadStringFromEEPROM(700, 25);
+    config.channel_name[5] = ReadStringFromEEPROM(750, 25);
+    config.channel_name[6] = ReadStringFromEEPROM(800, 25);
+    config.channel_name[7] = ReadStringFromEEPROM(850, 25);
+    config.channel_name[8] = ReadStringFromEEPROM(900, 25);
+    config.channel_name[9] = ReadStringFromEEPROM(950, 25);
+    config.channel_name[10] = ReadStringFromEEPROM(1000, 25);
+    config.channel_name[11] = ReadStringFromEEPROM(1050, 25);
+    config.channel_name[12] = ReadStringFromEEPROM(1100, 25);
+    config.channel_name[13] = ReadStringFromEEPROM(1150, 25);
+    config.channel_name[14] = ReadStringFromEEPROM(1200, 25);
+    config.channel_name[15] = ReadStringFromEEPROM(1250, 25);
   }
-  if (config.cfgVersion==2)
-  {                                       // read config parts of version 2
-    config.mqtt_devicetopic = ReadStringFromEEPROM(1300,20);
+  if (config.cfgVersion == 2)
+  { // read config parts of version 2
+    config.mqtt_devicetopic = ReadStringFromEEPROM(1300, 20);
   } else
-  {                                       // upgrade config to version 2
+  { // upgrade config to version 2
     config.mqtt_devicetopic = "jarolift"; // default devicetopic
     config.cfgVersion = 2;
     // clear EEPROM space
@@ -325,7 +324,7 @@ boolean ReadConfig()
     snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 8));
     config.serial = serialNumBuffer;
     Serial.printf("convert config.serial to hex: %08u = 0x%08x \n", config.serial_number, config.serial_number);
-    Serial.println("config.serial: "+ config.serial);
+    Serial.println("config.serial: " + config.serial);
     WriteLog("[INFO] - config version 2 - convert serial decimal->hexadecimal", true);
     WriteConfig();
   }
@@ -345,7 +344,7 @@ boolean ReadConfig()
 void InitializeConfigData()
 {
   char chipIdString[10];
-  sprintf(chipIdString,"-%08x",ESP.getChipId());
+  sprintf(chipIdString, "-%08x", ESP.getChipId());
 
   // apply default config if saved configuration not yet exist
   if (!ReadConfig())
@@ -377,7 +376,7 @@ void InitializeConfigData()
   // check if mqtt client-ID needs migration to new unique ID
   if (config.mqtt_broker_client_id == "JaroliftDongle") {
     config.mqtt_broker_client_id += chipIdString;
-    WriteLog("[INFO] - mqtt_broker_client_id changed to "+ config.mqtt_broker_client_id, true);
+    WriteLog("[INFO] - mqtt_broker_client_id changed to " + config.mqtt_broker_client_id, true);
     WriteConfig();
   }
 } // void InitializeConfigData
@@ -393,7 +392,7 @@ void Admin_Mode_Timeout()
 //####################################################################
 // Callback function for LED HeartBeat
 //####################################################################
-boolean highPulse=true;
+boolean highPulse = true;
 #define HEART_BEAT_CYCLE 4                       // HeartBeat cycle in seconds
 void HeartBeat()
 {

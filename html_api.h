@@ -18,18 +18,17 @@
 //####################################################################
 // API call to get data or execute commands via WebIf
 //####################################################################
-void html_api(){
-  if (debug_webui) Serial.printf("html_api server.args()=%d \n",server.args());
-  if (server.args() > 0 )
-  {
+void html_api() {
+  if (debug_webui) Serial.printf("html_api server.args()=%d \n", server.args());
+  if (server.args() > 0 ) {
     // get server args from HTML POST
     String cmd = "";
     int channel;
     String channel_name = "";
     if (debug_webui) {
       for ( uint8_t i = 0; i < server.args(); i++ ) {
-        Serial.printf("server.argName(%d) == %s\n",i,server.argName(i).c_str());
-        Serial.printf(" urldecode: %s\n",urldecode(server.arg(i)).c_str());
+        Serial.printf("server.argName(%d) == %s\n", i, server.argName(i).c_str());
+        Serial.printf(" urldecode: %s\n", urldecode(server.arg(i)).c_str());
       }
     }
     for ( uint8_t i = 0; i < server.args(); i++ ) {
@@ -48,7 +47,7 @@ void html_api(){
 
       if (server.argName(i) == "master_msb") config.master_msb = urldecode(server.arg(i));
       if (server.argName(i) == "master_lsb") config.master_lsb = urldecode(server.arg(i));
-        
+
       if (server.argName(i) == "ip_0") if (checkRange(server.arg(i)))   config.ip[0] =  server.arg(i).toInt();
       if (server.argName(i) == "ip_1") if (checkRange(server.arg(i)))   config.ip[1] =  server.arg(i).toInt();
       if (server.argName(i) == "ip_2") if (checkRange(server.arg(i)))   config.ip[2] =  server.arg(i).toInt();
@@ -66,7 +65,7 @@ void html_api(){
       if (server.argName(i) == "mqtt_broker_addr_1") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[1] =  server.arg(i).toInt();
       if (server.argName(i) == "mqtt_broker_addr_2") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[2] =  server.arg(i).toInt();
       if (server.argName(i) == "mqtt_broker_addr_3") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[3] =  server.arg(i).toInt();
-      
+
       if (server.argName(i) == "dhcp")
         config.dhcp = (urldecode(server.arg(i)) == "true");
       if (server.argName(i) == "learn_mode")
@@ -80,8 +79,7 @@ void html_api(){
       if (server.argName(i) == "devicecounter")
         config.new_devicecounter = urldecode(server.arg(i));
     } // for
-    if (cmd != "")
-    {
+    if (cmd != "") {
       if (cmd == "eventlog") {
         String values = "";
         // web_log_message[] is an array of strings, used as a circular buffer
@@ -103,83 +101,91 @@ void html_api(){
       } else if (cmd == "save") {
         // handled in main loop
         web_cmd = cmd;
-      }else if (cmd == "restart"){
+      } else if (cmd == "restart") {
         // handled in main loop
         web_cmd = cmd;
-      }else if (cmd == "get channel name"){
-         String values ="";
-         values += "channel_0=" + config.channel_name[0] + "\n";
-         values += "channel_1=" + config.channel_name[1] + "\n";
-         values += "channel_2=" + config.channel_name[2] + "\n";
-         values += "channel_3=" + config.channel_name[3] + "\n";
-         values += "channel_4=" + config.channel_name[4] + "\n";
-         values += "channel_5=" + config.channel_name[5] + "\n";
-         values += "channel_6=" + config.channel_name[6] + "\n";
-         values += "channel_7=" + config.channel_name[7] + "\n";
-         values += "channel_8=" + config.channel_name[8] + "\n";
-         values += "channel_9=" + config.channel_name[9] + "\n";
-         values += "channel_10=" + config.channel_name[10] + "\n";
-         values += "channel_11=" + config.channel_name[11] + "\n";
-         values += "channel_12=" + config.channel_name[12] + "\n";
-         values += "channel_13=" + config.channel_name[13] + "\n";
-         values += "channel_14=" + config.channel_name[14] + "\n";
-         values += "channel_15=" + config.channel_name[15] + "\n";
-         server.send ( 200, "text/plain", values ); 
+      } else if (cmd == "get channel name") {
+        String values = "";
+        values += "channel_0=" + config.channel_name[0] + "\n";
+        values += "channel_1=" + config.channel_name[1] + "\n";
+        values += "channel_2=" + config.channel_name[2] + "\n";
+        values += "channel_3=" + config.channel_name[3] + "\n";
+        values += "channel_4=" + config.channel_name[4] + "\n";
+        values += "channel_5=" + config.channel_name[5] + "\n";
+        values += "channel_6=" + config.channel_name[6] + "\n";
+        values += "channel_7=" + config.channel_name[7] + "\n";
+        values += "channel_8=" + config.channel_name[8] + "\n";
+        values += "channel_9=" + config.channel_name[9] + "\n";
+        values += "channel_10=" + config.channel_name[10] + "\n";
+        values += "channel_11=" + config.channel_name[11] + "\n";
+        values += "channel_12=" + config.channel_name[12] + "\n";
+        values += "channel_13=" + config.channel_name[13] + "\n";
+        values += "channel_14=" + config.channel_name[14] + "\n";
+        values += "channel_15=" + config.channel_name[15] + "\n";
+        server.send ( 200, "text/plain", values );
 
-      }else if (cmd == "get config"){
-         String values ="";
-         values += "ssid=" + config.ssid + "\n";
-         values += "password=" + config.password + "\n";
-         if (config.dhcp) {values += "checkbox=dhcp=1\n";}else{values += "checkbox=dhcp=0\n";}
-         values += "ip_0=" + (String) config.ip[0] + "\n";
-         values += "ip_1=" + (String) config.ip[1] + "\n";
-         values += "ip_2=" + (String) config.ip[2] + "\n";
-         values += "ip_3=" + (String) config.ip[3] + "\n";
-         values += "nm_0=" + (String) config.netmask[0] + "\n";
-         values += "nm_1=" + (String) config.netmask[1] + "\n";
-         values += "nm_2=" + (String) config.netmask[2] + "\n";
-         values += "nm_3=" + (String) config.netmask[3] + "\n";
-         values += "gw_0=" + (String) config.gateway[0] + "\n";
-         values += "gw_1=" + (String) config.gateway[1] + "\n";
-         values += "gw_2=" + (String) config.gateway[2] + "\n";
-         values += "gw_3=" + (String) config.gateway[3] + "\n";
-         values += "mqtt_broker_addr_0=" + (String) config.mqtt_broker_addr[0] + "\n";
-         values += "mqtt_broker_addr_1=" + (String) config.mqtt_broker_addr[1] + "\n";
-         values += "mqtt_broker_addr_2=" + (String) config.mqtt_broker_addr[2] + "\n";
-         values += "mqtt_broker_addr_3=" + (String) config.mqtt_broker_addr[3] + "\n";
-         values += "mqtt_broker_port=" + config.mqtt_broker_port + "\n";
-         values += "mqtt_broker_username=" + config.mqtt_broker_username + "\n";
-         values += "mqtt_broker_password=" + config.mqtt_broker_password + "\n";
-         values += "mqtt_broker_client_id=" + config.mqtt_broker_client_id + "\n";
-         values += "mqtt_devicetopic=" + config.mqtt_devicetopic + "\n";
-         values += "master_msb=" + config.master_msb + "\n";
-         values += "master_lsb=" + config.master_lsb + "\n";
-         if (config.learn_mode) {values += "checkbox=learn_mode=1\n";}else{values += "checkbox=learn_mode=0\n";}
-         values += "serial=" + config.serial + "\n";
-         values += "checkbox=set_and_generate_serial=0\n";
-         values += "devicecounter=" + (String)devcnt + "\n";
-         values += "checkbox=set_devicecounter=0\n";
-         values += "text=versionstr=Firmware " + String(PROGRAM_VERSION) + "\n";
-         server.send ( 200, "text/plain", values ); 
+      } else if (cmd == "get config") {
+        String values = "";
+        values += "ssid=" + config.ssid + "\n";
+        values += "password=" + config.password + "\n";
+        if (config.dhcp) {
+          values += "checkbox=dhcp=1\n";
+        } else {
+          values += "checkbox=dhcp=0\n";
+        }
+        values += "ip_0=" + (String) config.ip[0] + "\n";
+        values += "ip_1=" + (String) config.ip[1] + "\n";
+        values += "ip_2=" + (String) config.ip[2] + "\n";
+        values += "ip_3=" + (String) config.ip[3] + "\n";
+        values += "nm_0=" + (String) config.netmask[0] + "\n";
+        values += "nm_1=" + (String) config.netmask[1] + "\n";
+        values += "nm_2=" + (String) config.netmask[2] + "\n";
+        values += "nm_3=" + (String) config.netmask[3] + "\n";
+        values += "gw_0=" + (String) config.gateway[0] + "\n";
+        values += "gw_1=" + (String) config.gateway[1] + "\n";
+        values += "gw_2=" + (String) config.gateway[2] + "\n";
+        values += "gw_3=" + (String) config.gateway[3] + "\n";
+        values += "mqtt_broker_addr_0=" + (String) config.mqtt_broker_addr[0] + "\n";
+        values += "mqtt_broker_addr_1=" + (String) config.mqtt_broker_addr[1] + "\n";
+        values += "mqtt_broker_addr_2=" + (String) config.mqtt_broker_addr[2] + "\n";
+        values += "mqtt_broker_addr_3=" + (String) config.mqtt_broker_addr[3] + "\n";
+        values += "mqtt_broker_port=" + config.mqtt_broker_port + "\n";
+        values += "mqtt_broker_username=" + config.mqtt_broker_username + "\n";
+        values += "mqtt_broker_password=" + config.mqtt_broker_password + "\n";
+        values += "mqtt_broker_client_id=" + config.mqtt_broker_client_id + "\n";
+        values += "mqtt_devicetopic=" + config.mqtt_devicetopic + "\n";
+        values += "master_msb=" + config.master_msb + "\n";
+        values += "master_lsb=" + config.master_lsb + "\n";
+        if (config.learn_mode) {
+          values += "checkbox=learn_mode=1\n";
+        } else {
+          values += "checkbox=learn_mode=0\n";
+        }
+        values += "serial=" + config.serial + "\n";
+        values += "checkbox=set_and_generate_serial=0\n";
+        values += "devicecounter=" + (String)devcnt + "\n";
+        values += "checkbox=set_devicecounter=0\n";
+        values += "text=versionstr=Firmware " + String(PROGRAM_VERSION) + "\n";
+        server.send ( 200, "text/plain", values );
 
-      }else if ( cmd == "set channel name"){
-        if ((channel>= 0) && (channel<=15)) {
+      } else if ( cmd == "set channel name") {
+        if ((channel >= 0) && (channel <= 15)) {
           config.channel_name[channel] = channel_name;
           WriteConfig();
           String status_text = "Updating channel description to '" + channel_name + "'.";
           server.send ( 200, "text/plain", status_text );
-	      }
-      }else{
+        }
+      } else {
 
-         web_cmd_channel = channel;
-         web_cmd = cmd; 
-         String status_text = "Running command '" + cmd + "' for channel " + channel + ".";
-         server.send ( 200, "text/plain", status_text ); 
+        web_cmd_channel = channel;
+        web_cmd = cmd;
+        String status_text = "Running command '" + cmd + "' for channel " + channel + ".";
+        server.send ( 200, "text/plain", status_text );
       }
 
-    }else{
+    } else {
       String status_text = "No command to execute!";
-      server.send ( 200, "text/plain", status_text );   
+      server.send ( 200, "text/plain", status_text );
     }
     delay(100);
   }
