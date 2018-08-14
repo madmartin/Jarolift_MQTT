@@ -386,34 +386,12 @@ void loop()
     // send mqtt message with received Data:
     if (mqtt_client.connected() && mqtt_send_radio_receive_all) {
       String Topic = "stat/" + config.mqtt_devicetopic + "/received";
-      char serial[16];
-      itoa(rx_serial, serial, 16);
-
-      char lsb[16];
-      itoa(rx_device_key_lsb, lsb, 16);
-
-      char msb[16];
-      itoa(rx_device_key_msb, msb, 16);
-
-      char chr_decoded[16];
-      itoa(decoded, chr_decoded, 16);
-
       const char * msg = Topic.c_str();
-
-      String Payload;
-      Payload = "{\"serial\":\"" + String(serial) + "\", "
-                + "\"rx-function\":\"" + String(rx_function, HEX) + "\", "
-                + "\"rx_disc_low\":\"" + (int)rx_disc_low[0] + "\", "
-                + "\"rx_disc_high\":" + (int)rx_disc_h + ", "
-                + "\"RSSI\":" + (int)value + ", "
-                + "\"counter\":" + (int)rx_disc_low[2] + ", "
-                + "\"rx_device_key_lsb\":" + "\"" + String(lsb) + "\"" + ", "
-                + "\"rx_device_key_msb\":" + "\"" + String(msb) + "\"" + ", "
-                + "\"decoded\":" +  "\"" + String(chr_decoded) +  "\"" + "}";
-
-      const char * txt = Payload.c_str();
-      mqtt_client.publish(msg, txt);
-
+      char payload[220];
+      snprintf(payload, sizeof(payload),
+               "{\"serial\":\"0x%08x\", \"rx_function\":\"0x%x\", \"rx_disc_low\":%d, \"rx_disc_high\":%d, \"RSSI\":%d, \"counter\":%d, \"rx_device_key_lsb\":\"0x%08x\", \"rx_device_key_msb\":\"0x%08x\", \"decoded\":\"0x%08x\"}",
+               rx_serial, rx_function, rx_disc_low[0], rx_disc_h, value, rx_disc_low[3], rx_device_key_lsb, rx_device_key_msb, decoded );
+      mqtt_client.publish(msg, payload);
     }
 
     rx_disc_h = 0;
@@ -599,6 +577,8 @@ void rx_decoder () {
   decoded = k.decrypt(result);
   rx_disc_low[0] = (decoded >> 24) & 0xFF;
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
+  rx_disc_low[2] = (decoded >> 8) & 0xFF;
+  rx_disc_low[3] = decoded & 0xFF;
 
   Serial.printf(" // decoded: 0x%08x\n", decoded);
 } // void rx_decoder
