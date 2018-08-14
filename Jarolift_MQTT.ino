@@ -381,7 +381,7 @@ void loop()
       steadycnt = 0;
     }
 
-    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n", rx_serial, rx_function, rx_disc_h);
+    Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n\n", rx_serial, rx_function, rx_disc_h);
 
     // send mqtt message with received Data:
     if (mqtt_client.connected()) {
@@ -600,7 +600,7 @@ void rx_decoder () {
   rx_disc_low[0] = (decoded >> 24) & 0xFF;
   rx_disc_low[1] = (decoded >> 16) & 0xFF;
 
-  Serial.printf(" // decoded: 0x%08x\n\n", decoded);
+  Serial.printf(" // decoded: 0x%08x\n", decoded);
 } // void rx_decoder
 
 //####################################################################
