@@ -984,13 +984,12 @@ void cmd_learn(int channel) {
 } // void cmd_learn
 
 //####################################################################
-// function to put the dongle into the learn mode (UP/DOWN at same time)
+// function to send UP+DOWN button at same time
 //####################################################################
 void cmd_updown(int channel) {
-  WriteLog("[INFO] - putting channel " +  (String) channel + " into up/down mode ...", false);
   new_serial = EEPROM.get(adresses[channel], new_serial);
   EEPROM.get(cntadr, devcnt);
-  button = 0xA;                           // New learn method. Up+Down
+  button = 0xA;
   disc_l = disc_low[channel] ;
   disc_h = disc_high[channel];
   disc = (disc_l << 8) | serials[channel];
@@ -999,9 +998,8 @@ void cmd_updown(int channel) {
   entertx();
   senden(1);
   enterrx();
-  devcnt++;
-  devcnt_handler(false);
-  WriteLog("Channel up/down send!", true);
+  devcnt_handler(true);
+  WriteLog("[INFO] - command UPDOWN for channel " + (String)channel + " (" + config.channel_name[channel] + ") sent.", true);
 } // void cmd_updown
 
 //####################################################################
