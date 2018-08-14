@@ -55,7 +55,7 @@ boolean web_log_message_rotated = false;
 boolean web_log_message_newline = true;
 
 // boolean settings which will later be configurable through WebUI
-boolean debug_mqtt = true;
+boolean debug_mqtt = false;
 boolean debug_webui = false;
 boolean debug_log_radio_receive_all = false;
 boolean mqtt_send_radio_receive_all = true;
