@@ -114,55 +114,11 @@ volatile byte value = 0;                  // Stores RSSI Value
 long rx_time;
 int steadycnt = 0;
 boolean time_is_set_first = true;
-
-
 DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
+CC1101 cc1101;                            // The connection to the hardware chip CC1101 the RF Chip
 
-//####################################################################
-// Receive Routine
-//####################################################################
-void ICACHE_RAM_ATTR radio_rx_measure()
-{
-  static long LineUp, LineDown, Timeout;
-  long LowVal, HighVal;
-  int pinstate = digitalRead(RX_PORT); // Read current pin state
-  if (micros() - Timeout > 3500) {
-    pbwrite = 0;
-  }
-  if (pinstate)                       // pin is now HIGH, was low
-  {
-    LineUp = micros();                // Get actual time in LineUp
-    LowVal = LineUp - LineDown;       // calculate the LOW pulse time
-    if (LowVal < debounce) return;
-    if ((LowVal > 300) && (LowVal < 4300))
-    {
-      if ((LowVal > 3650) && (LowVal < 4300)) {
-        Timeout = micros();
-        pbwrite = 0;
-        lowbuf[pbwrite] = LowVal;
-        pbwrite++;
-      }
-      if ((LowVal > 300) && (LowVal < 1000)) {
-        lowbuf[pbwrite] = LowVal;
-        pbwrite++;
-        Timeout = micros();
-      }
-    }
-  }
-  else
-  {
-    LineDown = micros();          // line went LOW after being HIGH
-    HighVal = LineDown - LineUp;  // calculate the HIGH pulse time
-    if (HighVal < debounce) return;
-    if ((HighVal > 300) && (HighVal < 1000))
-    {
-      hibuf[pbwrite] = HighVal;
-    }
-  }
-} // void ICACHE_RAM_ATTR radio_rx_measure
-
-// The connection to the hardware chip CC1101 the RF Chip
-CC1101 cc1101;
+// forward declarations
+void ICACHE_RAM_ATTR radio_rx_measure();
 
 //####################################################################
 // sketch initialization routine
@@ -262,35 +218,6 @@ void setup()
   attachInterrupt(RX_PORT, radio_rx_measure, CHANGE); // Interrupt on change of RX_PORT
 
 } // void setup
-
-//####################################################################
-// convert the file extension to the MIME type
-//####################################################################
-String getContentType(String filename) {
-  if (filename.endsWith(".html")) return "text/html";
-  else if (filename.endsWith(".css")) return "text/css";
-  else if (filename.endsWith(".js")) return "application/javascript";
-  else if (filename.endsWith(".ico")) return "image/x-icon";
-  return "text/plain";
-} // String getContentType
-
-//####################################################################
-// send the right file to the client (if it exists)
-//####################################################################
-bool handleFileRead(String path) {
-  if (debug_webui) Serial.println("handleFileRead: " + path);
-  if (path.endsWith("/")) path += "index.html";         // If a folder is requested, send the index file
-  String contentType = getContentType(path);            // Get the MIME type
-  if (SPIFFS.exists(path)) {                            // If the file exists
-    File file = SPIFFS.open(path, "r");                 // Open it
-    size_t sent = server.streamFile(file, contentType); // And send it to the client
-    file.close();                                       // Then close the file again
-    return true;
-  }
-  if (debug_webui) Serial.println("\tFile Not Found");
-  return false;                                         // If the file doesn't exist, return false
-} // bool handleFileRead
-
 
 //####################################################################
 // main loop
@@ -454,6 +381,54 @@ void loop()
     web_cmd = "";
   }
 } // void loop
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// CC1101 radio functions group
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//####################################################################
+// Receive Routine
+//####################################################################
+void ICACHE_RAM_ATTR radio_rx_measure()
+{
+  static long LineUp, LineDown, Timeout;
+  long LowVal, HighVal;
+  int pinstate = digitalRead(RX_PORT); // Read current pin state
+  if (micros() - Timeout > 3500) {
+    pbwrite = 0;
+  }
+  if (pinstate)                       // pin is now HIGH, was low
+  {
+    LineUp = micros();                // Get actual time in LineUp
+    LowVal = LineUp - LineDown;       // calculate the LOW pulse time
+    if (LowVal < debounce) return;
+    if ((LowVal > 300) && (LowVal < 4300))
+    {
+      if ((LowVal > 3650) && (LowVal < 4300)) {
+        Timeout = micros();
+        pbwrite = 0;
+        lowbuf[pbwrite] = LowVal;
+        pbwrite++;
+      }
+      if ((LowVal > 300) && (LowVal < 1000)) {
+        lowbuf[pbwrite] = LowVal;
+        pbwrite++;
+        Timeout = micros();
+      }
+    }
+  }
+  else
+  {
+    LineDown = micros();          // line went LOW after being HIGH
+    HighVal = LineDown - LineUp;  // calculate the HIGH pulse time
+    if (HighVal < debounce) return;
+    if ((HighVal > 300) && (HighVal < 1000))
+    {
+      hibuf[pbwrite] = HighVal;
+    }
+  }
+} // void ICACHE_RAM_ATTR radio_rx_measure
 
 //####################################################################
 // Generation of the encrypted message (Hopcode)
@@ -631,6 +606,46 @@ void entertx() {
   }
 } // void entertx
 
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Webserver functions group
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+// void html_api() -> see html_api.h
+
+//####################################################################
+// convert the file extension to the MIME type
+//####################################################################
+String getContentType(String filename) {
+  if (filename.endsWith(".html")) return "text/html";
+  else if (filename.endsWith(".css")) return "text/css";
+  else if (filename.endsWith(".js")) return "application/javascript";
+  else if (filename.endsWith(".ico")) return "image/x-icon";
+  return "text/plain";
+} // String getContentType
+
+//####################################################################
+// send the right file to the client (if it exists)
+//####################################################################
+bool handleFileRead(String path) {
+  if (debug_webui) Serial.println("handleFileRead: " + path);
+  if (path.endsWith("/")) path += "index.html";         // If a folder is requested, send the index file
+  String contentType = getContentType(path);            // Get the MIME type
+  if (SPIFFS.exists(path)) {                            // If the file exists
+    File file = SPIFFS.open(path, "r");                 // Open it
+    size_t sent = server.streamFile(file, contentType); // And send it to the client
+    file.close();                                       // Then close the file again
+    return true;
+  }
+  if (debug_webui) Serial.println("\tFile Not Found");
+  return false;                                         // If the file doesn't exist, return false
+} // bool handleFileRead
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// MQTT functions group
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 //####################################################################
 // Callback for incoming MQTT messages
 //####################################################################
@@ -792,6 +807,11 @@ void mqtt_send_config_line(int & counter, String Payload) {
   counter++;
   yield();
 } // void mqtt_send_config_line
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// execute cmd_ functions group
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 //####################################################################
 // function to move the shutter up
