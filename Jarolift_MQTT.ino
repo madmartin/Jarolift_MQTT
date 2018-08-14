@@ -121,7 +121,7 @@ DoubleResetDetector drd(DRD_TIMEOUT, DRD_ADDRESS);
 //####################################################################
 // Receive Routine
 //####################################################################
-void ICACHE_RAM_ATTR measure()
+void ICACHE_RAM_ATTR radio_rx_measure()
 {
   static long LineUp, LineDown, Timeout;
   long LowVal, HighVal;
@@ -159,7 +159,7 @@ void ICACHE_RAM_ATTR measure()
       hibuf[pbwrite] = HighVal;
     }
   }
-} // void ICACHE_RAM_ATTR measure
+} // void ICACHE_RAM_ATTR radio_rx_measure
 
 // The connection to the hardware chip CC1101 the RF Chip
 CC1101 cc1101;
@@ -259,7 +259,7 @@ void setup()
 
   // RX
   pinMode(RX_PORT, INPUT_PULLUP);
-  attachInterrupt(RX_PORT, measure, CHANGE); // Interrupt @Inputpin
+  attachInterrupt(RX_PORT, radio_rx_measure, CHANGE); // Interrupt on change of RX_PORT
 
 } // void setup
 
@@ -324,7 +324,7 @@ void loop()
     enterrx();
     iset = false;
     delay(200);
-    attachInterrupt(RX_PORT, measure, CHANGE); // Interrupt @Inputpin;
+    attachInterrupt(RX_PORT, radio_rx_measure, CHANGE); // Interrupt on change of RX_PORT
   }
 
   // Check if RX buffer is full
@@ -425,7 +425,7 @@ void loop()
   if (web_cmd != "") {
 
     iset = true;
-    detachInterrupt(RX_PORT); // Interrupt @Inputpin
+    detachInterrupt(RX_PORT); // Interrupt on change of RX_PORT
     delay(1);
 
     if (web_cmd == "up") {
@@ -485,13 +485,13 @@ void keygen () {
 // Simple TX routine. Repetitions for simulate continuous button press.
 // Send code two times. In case of one shutter did not "hear" the command.
 //####################################################################
-void senden(int repetitions) {
+void radio_tx(int repetitions) {
   pack = (button << 60) | (new_serial << 32) | dec;
   for (int a = 0; a < repetitions; a++)
   {
     digitalWrite(TX_PORT, LOW);      // CC1101 in TX Mode+
     delayMicroseconds(1150);
-    frame(13);                       // change 28.01.2018 default 10
+    radio_tx_frame(13);              // change 28.01.2018 default 10
     delayMicroseconds(3500);
 
     for (int i = 0; i < 64; i++) {
@@ -512,16 +512,16 @@ void senden(int repetitions) {
         delayMicroseconds(Lowpulse);
       }
     }
-    group_h();                       // Last 8Bit. For motor 8-16.
+    radio_tx_group_h();              // Last 8Bit. For motor 8-16.
 
     delay(16);                       // delay in loop context is save for wdt
   }
-} // void senden
+} // void radio_tx
 
 //####################################################################
 // Sending of high_group_bits 8-16
 //####################################################################
-void group_h() {
+void radio_tx_group_h() {
   for (int i = 0; i < 8; i++) {
     int out = ((disc_h >> i) & 0x1); // Bitmask to get MSB and send it first
     if (out == 0x1)
@@ -539,19 +539,19 @@ void group_h() {
       delayMicroseconds(Lowpulse);
     }
   }
-} // void group_h
+} // void radio_tx_group_h
 
 //####################################################################
 // Generates sync-pulses
 //####################################################################
-void frame(int l) {
+void radio_tx_frame(int l) {
   for (int i = 0; i < l; ++i) {
     digitalWrite(TX_PORT, LOW);
     delayMicroseconds(400);          // change 28.01.2018 default highpulse
     digitalWrite(TX_PORT, HIGH);
     delayMicroseconds(380);          // change 28.01.2018 default lowpulse
   }
-} // void frame
+} // void radio_tx_frame
 
 //####################################################################
 // Calculate device code from received serial number
@@ -808,7 +808,7 @@ void cmd_up(int channel) {
   keygen();
   keeloq();
   entertx();
-  senden(2);
+  radio_tx(2);
   enterrx();
   rx_function = 0x8;
   rx_serial_array[0] = (new_serial >> 24) & 0xFF;
@@ -834,7 +834,7 @@ void cmd_down(int channel) {
   keygen();
   keeloq();  // Generate encrypted message 32Bit hopcode
   entertx();
-  senden(2); // Call of TX routine, GPIO4 acts as output.
+  radio_tx(2); // Call TX routine
   enterrx();
   rx_function = 0x2;
   rx_serial_array[0] = (new_serial >> 24) & 0xFF;
@@ -860,7 +860,7 @@ void cmd_stop(int channel) {
   keygen();
   keeloq();
   entertx();
-  senden(2);
+  radio_tx(2);
   enterrx();
   rx_function = 0x4;
   rx_serial_array[0] = (new_serial >> 24) & 0xFF;
@@ -886,7 +886,7 @@ void cmd_shade(int channel) {
   keygen();
   keeloq();
   entertx();
-  senden(20);
+  radio_tx(20);
   enterrx();
   rx_function = 0x3;
   rx_serial_array[0] = (new_serial >> 24) & 0xFF;
@@ -914,7 +914,7 @@ void cmd_set_shade_position(int channel) {
   for (int i = 0; i < 4; i++) {
     entertx();
     keeloq();
-    senden(1);
+    radio_tx(1);
     devcnt++;
     enterrx();
     delay(300);
@@ -947,7 +947,7 @@ void cmd_learn(int channel) {
   keygen();
   keeloq();
   entertx();
-  senden(1);
+  radio_tx(1);
   enterrx();
   devcnt++;
   if (config.learn_mode == true) {
@@ -955,7 +955,7 @@ void cmd_learn(int channel) {
     button = 0x4;   // Stop
     keeloq();
     entertx();
-    senden(1);
+    radio_tx(1);
     enterrx();
     devcnt++;
   }
@@ -976,7 +976,7 @@ void cmd_updown(int channel) {
   keygen();
   keeloq();
   entertx();
-  senden(1);
+  radio_tx(1);
   enterrx();
   devcnt_handler(true);
   WriteLog("[INFO] - command UPDOWN for channel " + (String)channel + " (" + config.channel_name[channel] + ") sent.", true);
