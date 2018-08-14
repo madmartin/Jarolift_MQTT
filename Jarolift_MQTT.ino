@@ -384,8 +384,8 @@ void loop()
     Serial.printf(" serialnumber: 0x%08x // function code: 0x%02x // disc: 0x%02x\n\n", rx_serial, rx_function, rx_disc_h);
 
     // send mqtt message with received Data:
-    if (mqtt_client.connected()) {
-      String Topic = "stat/" + config.mqtt_devicetopic + "/received/";
+    if (mqtt_client.connected() && mqtt_send_radio_receive_all) {
+      String Topic = "stat/" + config.mqtt_devicetopic + "/received";
       char serial[16];
       itoa(rx_serial, serial, 16);
 
