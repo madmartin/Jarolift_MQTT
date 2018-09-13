@@ -51,6 +51,9 @@
 #include <simpleDSTadjust.h>
 #include <coredecls.h>              // settimeofday_cb()
 
+#include <ESP8266mDNS.h>
+#include <ArduinoOTA.h>
+
 #include "helpers.h"
 #include "global.h"
 #include "html_api.h"
@@ -61,6 +64,9 @@ extern "C" {
 #include "cc1101.h"
 #include <KeeloqLib.h>
 }
+
+// host name used for OTA and mDNS
+#define host_name "esp8266"
 
 // Number of seconds after reset during which a
 // subseqent reset will be considered a double reset.
@@ -215,9 +221,29 @@ void setup()
 
   // RX
   pinMode(RX_PORT, INPUT_PULLUP);
+
+  if (MDNS.begin(host_name)) {
+    WriteLog("[INFO] - mDNS server started for \"" + String(host_name) + ".local\" (MacOS and linux)", true);
+    // Add service to MDNS-SD
+    MDNS.addService("http", "tcp", 80);
+  }
+
+  ArduinoOTA.setHostname(host_name);
+  ArduinoOTA.onStart(otastart);
+  ArduinoOTA.begin();
+  WriteLog("[INFO] - OTA  server started for \"" + String(host_name) + "\"", true);
+
   attachInterrupt(RX_PORT, radio_rx_measure, CHANGE); // Interrupt on change of RX_PORT
 
 } // void setup
+
+//####################################################################
+// Callback routine for OTA start
+//####################################################################
+void otastart()
+{
+  Serial.println("OTA started...");
+} // void otastart
 
 //####################################################################
 // main loop
@@ -380,6 +406,7 @@ void loop()
     }
     web_cmd = "";
   }
+  ArduinoOTA.handle();                // allow OTA if requested
 } // void loop
 
 
