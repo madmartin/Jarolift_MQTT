@@ -83,6 +83,7 @@ struct strConfig {
   String  serial;             // starting serial number as string
   uint32_t serial_number;     // starting serial number as integer
   String  channel_name[16];
+  //int shutter_time[16]; //this is set in shutter_information
   // temporary values, for web ui, not to store in EEPROM
   String mqtt_devicetopic_new = ""; // needed to figure out if the devicetopic has been changed
   String new_serial = "";
@@ -216,6 +217,9 @@ void WriteConfig()
   WriteStringToEEPROM(1150, config.channel_name[13]);
   WriteStringToEEPROM(1200, config.channel_name[14]);
   WriteStringToEEPROM(1250, config.channel_name[15]);
+  
+  for ( int i = 0; i < 16; i++ )
+	EEPROMWritelong( 1350 + i*4, shutter_information[i].getShutterTime() );
 
   EEPROM.commit();
   delay(1000);
@@ -294,10 +298,16 @@ boolean ReadConfig()
     config.channel_name[13] = ReadStringFromEEPROM(1150, 25);
     config.channel_name[14] = ReadStringFromEEPROM(1200, 25);
     config.channel_name[15] = ReadStringFromEEPROM(1250, 25);
+	
   }
   if (config.cfgVersion == 2)
   { // read config parts of version 2
     config.mqtt_devicetopic = ReadStringFromEEPROM(1300, 20);
+	
+	// actually this is more config version 3... but should work like that as well
+	for ( int i = 0; i < 16; i++ )
+		shutter_information[i].setShutterTime( EEPROMReadlong( 1350 + i*4 ) );
+	
   } else
   { // upgrade config to version 2
     config.mqtt_devicetopic = "jarolift"; // default devicetopic
@@ -370,6 +380,8 @@ void InitializeConfigData()
     config.serial = "12345600";
     for ( int i = 0; i <= 15; i++ ) {
       config.channel_name[i] = "";
+	  shutter_information[i].setShutterTime(21000);
+	  
     }
     WriteConfig();
     WriteLog("[INFO] - default config applied", true);

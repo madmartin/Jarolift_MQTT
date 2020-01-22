@@ -25,6 +25,7 @@ void html_api() {
     String cmd = "";
     int channel;
     String channel_name = "";
+	int shutter_time;
     if (debug_webui) {
       for ( uint8_t i = 0; i < server.args(); i++ ) {
         Serial.printf("server.argName(%d) == %s\n", i, server.argName(i).c_str());
@@ -35,6 +36,7 @@ void html_api() {
       if (server.argName(i) == "cmd") cmd         = urldecode(server.arg(i));
       if (server.argName(i) == "channel") channel = server.arg(i).toInt();
       if (server.argName(i) == "channel_name") channel_name = urldecode(server.arg(i));
+	  if (server.argName(i) == "shutter_time") shutter_time = server.arg(i).toInt();
 
       if (server.argName(i) == "ssid") config.ssid                           = urldecode(server.arg(i));
       if (server.argName(i) == "password") config.password                   = urldecode(server.arg(i));
@@ -106,22 +108,10 @@ void html_api() {
         web_cmd = cmd;
       } else if (cmd == "get channel name") {
         String values = "";
-        values += "channel_0=" + config.channel_name[0] + "\n";
-        values += "channel_1=" + config.channel_name[1] + "\n";
-        values += "channel_2=" + config.channel_name[2] + "\n";
-        values += "channel_3=" + config.channel_name[3] + "\n";
-        values += "channel_4=" + config.channel_name[4] + "\n";
-        values += "channel_5=" + config.channel_name[5] + "\n";
-        values += "channel_6=" + config.channel_name[6] + "\n";
-        values += "channel_7=" + config.channel_name[7] + "\n";
-        values += "channel_8=" + config.channel_name[8] + "\n";
-        values += "channel_9=" + config.channel_name[9] + "\n";
-        values += "channel_10=" + config.channel_name[10] + "\n";
-        values += "channel_11=" + config.channel_name[11] + "\n";
-        values += "channel_12=" + config.channel_name[12] + "\n";
-        values += "channel_13=" + config.channel_name[13] + "\n";
-        values += "channel_14=" + config.channel_name[14] + "\n";
-        values += "channel_15=" + config.channel_name[15] + "\n";
+		for ( int i = 0; i < 16; i++ ) {
+			values += "channel_" + String(i) + "=" + config.channel_name[i] + "=" + String(shutter_information[i].getPosition(millis())) + "=" + shutter_information[i].getShutterTime() + "\n";
+		}
+
         server.send ( 200, "text/plain", values );
 
       } else if (cmd == "get config") {
@@ -173,6 +163,13 @@ void html_api() {
           config.channel_name[channel] = channel_name;
           WriteConfig();
           String status_text = "Updating channel description to '" + channel_name + "'.";
+          server.send ( 200, "text/plain", status_text );
+        }
+	  } else if ( cmd == "set shutter time") {
+        if ((channel >= 0) && (channel <= 15)) {
+		  shutter_information[channel].setShutterTime( shutter_time );
+          WriteConfig();
+          String status_text = "Updated shutter time for channel '" + String(channel) + "'.";
           server.send ( 200, "text/plain", status_text );
         }
       } else {

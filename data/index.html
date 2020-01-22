@@ -42,7 +42,7 @@
 		<li>fix part: &quot;shutter&quot;</li>
 		<li>the numeric channel number</li>
 	</ul>
-	The MQTT payload for the &quot;cmd&quot; commands are: &quot;UP&quot;, &quot;DOWN&quot;, &quot;STOP&quot;, &quot;SHADE&quot;, &quot;SETSHADE&quot; and &quot;LEARN&quot;.
+	The MQTT payload for the &quot;cmd&quot; commands are: &quot;UP&quot;, &quot;DOWN&quot;, &quot;STOP&quot;, &quot;POSxx&quot;, &quot;SHADE&quot;, &quot;SETSHADE&quot; and &quot;LEARN&quot;.
 	All MQTT topics and commands are case sensitive, use them exactly as described here.
         <p>
           <h4>example MQTT topics to send commands to the Wifi Dongle:</h4>
@@ -52,7 +52,10 @@
   cmd/jarolift/shutter/2 STOP
   cmd/jarolift/shutter/6 SHADE
   cmd/jarolift/shutter/12 SETSHADE
-  cmd/jarolift/shutter/12 LEARN</pre>
+  cmd/jarolift/shutter/12 LEARN
+  cmd/jarolift/shutter/4 POS50
+  cmd/jarolift/shutter/4 POS9
+  cmd/jarolift/shutter/4 POS85</pre>
         </p>
         <p>
           <h4>MQTT topics send back with the updated status of a shutter:</h4>
@@ -64,6 +67,8 @@
           </ul>
           <pre class="siimple-pre">
   stat/jarolift/shutter/0 100</pre>
+  
+		The shutter sends back 100 on DOWN, 0 on UP and the current value on STOP. If shading is used the position can not be calculated accurate. If the position is triggered by an MQTT POS command, the shutter will first send 0 or 100 (depending if it goes up or down) and the real value when it is stopped on the desired position. 
         </p>
         <br>
         <h3>Integration into openHAB</h3>

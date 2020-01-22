@@ -25,7 +25,7 @@ function getEventLog() {
 }
 
 
-function runShutterCmd(cmd, channel, channel_name) {
+function runShutterCmd(cmd, channel, dataVariable, data) {
   var http = new XMLHttpRequest();
   http.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
@@ -34,14 +34,19 @@ function runShutterCmd(cmd, channel, channel_name) {
   };
   http.open("POST", "api", true);
   http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-  http.send("cmd=" + cmd + "&channel=" + channel + "&channel_name=" + channel_name);
+  http.send("cmd=" + cmd + "&channel=" + channel + "&" + dataVariable + "=" + data);
 }
 
 function setChannelNameCallback(rowData, rowName) {
-  runShutterCmd('set channel name', rowName, rowData['channel_name'])
+  runShutterCmd('set channel name', rowName, "channel_name", rowData['channel_name'])
+}
+
+function setShutterTimeCallback(rowData, rowName) {
+	runShutterCmd('set shutter time', rowName.substring( 4 ), "shutter_time", rowData['shutter_time'])
 }
 
 var setChannelName = {"finishCallback": setChannelNameCallback};
+var setShutterTime = {"finishCallback": setShutterTimeCallback};
 
 
 function getChannelName(){
@@ -67,13 +72,35 @@ function getChannelName(){
           }else{
             counter++;
           }
+		  
+		  var pos = "N/A";
+		  if (result.length > 2 && result[2] != "" ) {
+			  pos = result[2]
+		  }
+		  
+		  var shutter_time = "20000";
+		  if (result.length > 3 && result[3] != "" ) {
+			  shutter_time = result[3];
+		  }
 
           // create new element
           var element = document.createElement("div");
           element.setAttribute("name", "shuttercontrol");
           // add HTML stuff to the element
           element.innerHTML = `
-            <table><tr id=` + channel_id + `> <td> Ch-` + channel_id + ` </td> <td data-inlineType="text" data-inlineName="channel_name" style="font-size: 2.3rem;">` + result[1] + `</td><td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('` + channel_id + `', setChannelName)">edit</a></td></tr></table>
+            <table>
+				<tr id=` + channel_id + `>
+					<td> Ch-` + channel_id + ` </td>
+					<td colspan="2" data-inlineType="text" data-inlineName="channel_name" style="font-size: 2.3rem;">` + result[1] + `</td>
+					<td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('` + channel_id + `', setChannelName)">edit</a></td>
+				</tr>
+				<tr id="pos_` + channel_id + `">
+					<td> Closed ` + pos + `% </td>
+					<td style="text-align:right"> Shutter time: </td>
+					<td data-inlineType="text" data-inlineName="shutter_time">` + shutter_time + `</td>
+					<td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('pos_` + channel_id + `', setShutterTime)">edit</a></td>
+				</tr>
+			</table>
             <div class="siimple-grid-row">
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('up', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">UP</div></div>
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('stop', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">STOP</div></div>
