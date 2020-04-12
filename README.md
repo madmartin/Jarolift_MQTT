@@ -27,7 +27,7 @@ The provided libraries have different licenses, look into the respective files f
 * CC1101 library        LGPL-License
 * DoubleResetDetector   MIT License
 * Keeloq library        unknown License
-* PubSubClient-2.6.09   "AS-IS"-License
+* PubSubClient          MIT License
 * simpleDSTadjust       unknown License
 
 ### Necessary Hardware:
@@ -53,9 +53,13 @@ Locate the user library folder of your arduino sketch directory
 Default under linux: `$HOME/Arduino/libraries/`
 
 * copy the folder `DoubleResetDetector` to the arduino library folder
-* copy the folder `PubSubClient-2.6.09` to the arduino library folder
+* copy the folder `PubSubClient` to the arduino library folder
 * copy the folder `KeeloqLib` to the arduino library folder
 * copy the folder `simpleDSTadjust` to the arduino library folder
+
+### when updating from earlier Jarolift_MQTT releases
+
+* in earlier releases, the folder `PubSubClient-2.6.09` was delivered. Make sure you remove `PubSubClient-2.6.09` from the library folder and put the current `PubSubClient` folder there!
 
 
 ### Compile

@@ -2,6 +2,12 @@
 
 **Usage note:** please add new changelog information here at the beginning
 
+##### 2020-04-12
+* merged github pull requests #22 and #23
+*  #22 delphin0850 committed on 25 Mar 2019: HTML Fix to save the parameters
+*  #23 mvn23 committed on 13 Apr 2019: Fix serial generating and parsing
+* update library "pubsubclient" to v2.7
+
 ##### 2018-08-09
 * now it's possible to use the dongle only via the WebUI, by configure NO MQTT broker 
 * a heartbeat function lets blink the NodeMCU/ESP's LED every 4sec
