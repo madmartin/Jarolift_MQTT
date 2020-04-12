@@ -52,6 +52,7 @@
 #include <coredecls.h>              // settimeofday_cb()
 
 #include "helpers.h"
+#include "ShutterInformation.h"
 #include "global.h"
 #include "html_api.h"
 
@@ -345,6 +346,16 @@ void loop()
         mqtt_client.loop();
       }
     }
+  }
+  
+  // loop through shutters to check if any desired position is reached
+  unsigned long ms = millis();
+  for ( int i = 0; i < 16; i++ ) {
+	  int stop = shutter_information[i].shouldSendStop( ms );
+	  if ( stop ) {
+		  WriteLog("[INFO] - shutter position for channel " + String(i) + " reached, stopping", true );
+		  cmd_stop( i );
+	  }
   }
 
   // run a CMD whenever a web_cmd event has been triggered
@@ -706,6 +717,37 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
       cmd_learn(channel);
     } else if (cmd == "UPDOWN") {
       cmd_updown(channel);
+	} else if ( cmd.startsWith( "POS" ) ) {
+		
+		String pos_text = cmd.substring( 3 );
+		int pos = pos_text.toInt();
+		
+		if ( pos >= 0 && pos <= 100 ) {
+			int si_cmd = shutter_information[channel].setPosition( millis(), pos );
+			
+			switch ( si_cmd ) {
+				case 0:
+					// shutter not driving, already in position, nothing todo
+					WriteLog("[INFO] - shutter already in correct position " + String(pos) + "%", true );
+					mqtt_send_percent_closed_state(channel, shutter_information[channel].getPosition( millis() ), "INFO");
+					break;
+				case 1:
+					// shutter driving, but already in position, STOP
+					WriteLog("[INFO] - shutter driving but already in correct position " + String(pos) + "%", true );
+					cmd_stop(channel);
+					break;
+				case 2:
+					// shutter needs to go up
+					WriteLog("[INFO] - shutter needs to go up for " + String(pos) + "%", true );
+					cmd_up(channel);
+					break;
+				case 3:
+					// shutter needs to go down
+					WriteLog("[INFO] - shutter needs to go down for " + String(pos) + "%", true );
+					cmd_down(channel);
+					break;
+			}		
+		}	
     } else {
       WriteLog("[ERR ] - incoming MQTT payload unknown.", true);
     }
@@ -743,8 +785,8 @@ void mqtt_send_percent_closed_state(int channelNum, int percent, String command)
     String Topic = "stat/" + config.mqtt_devicetopic + "/shutter/" + (String)channelNum;
     const char * msg = Topic.c_str();
     mqtt_client.publish(msg, percentstr);
+	WriteLog("[INFO] - MQTT command " + command + " for channel " + (String)channelNum + " (" + config.channel_name[channelNum] + ") sent. Position " + percent + "%", true);
   }
-  WriteLog("[INFO] - command " + command + " for channel " + (String)channelNum + " (" + config.channel_name[channelNum] + ") sent.", true);
 } // void mqtt_send_percent_closed_state
 
 //####################################################################
@@ -836,6 +878,8 @@ void cmd_up(int channel) {
   rx_serial_array[3] = new_serial & 0xFF;
   mqtt_send_percent_closed_state(channel, 0, "UP");
   devcnt_handler(true);
+  if ( channel <= 15 )
+	shutter_information[channel].cmdUp(millis());
 } // void cmd_up
 
 //####################################################################
@@ -862,6 +906,8 @@ void cmd_down(int channel) {
   rx_serial_array[3] = new_serial & 0xFF;
   mqtt_send_percent_closed_state(channel, 100, "DOWN");
   devcnt_handler(true);
+  if ( channel <= 15 )
+	shutter_information[channel].cmdDown(millis());
 } // void cmd_down
 
 //####################################################################
@@ -888,6 +934,12 @@ void cmd_stop(int channel) {
   rx_serial_array[3] = new_serial & 0xFF;
   WriteLog("[INFO] - command STOP for channel " + (String)channel + " (" + config.channel_name[channel] + ") sent.", true);
   devcnt_handler(true);
+  if ( channel <= 15 ) {
+	ShutterInformation *si = &shutter_information[channel];
+	unsigned long ms = millis();
+	si->cmdStop(ms);
+	mqtt_send_percent_closed_state(channel, si->getPosition(ms), "STOP");
+  }
 } // void cmd_stop
 
 //####################################################################
