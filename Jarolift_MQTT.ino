@@ -83,7 +83,6 @@ uint32_t dec             = 0;   // stores the 32Bit encrypted code
 uint64_t pack            = 0;   // Contains data to send.
 byte disc_low[16]        = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x0, 0x0, 0x0, 0x0, 0x0,  0x0,  0x0,  0x0};
 byte disc_high[16]       = {0x0, 0x0, 0x0, 0x0, 0x0,  0x0,  0x0,  0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
-byte serials[16]         = {0x0, 0x1, 0x2, 0x3, 0x4,  0x5,  0x6,  0x7, 0x8, 0x9, 0xA, 0xB, 0xC,  0xD,  0xE,  0xF }; // Represents last serial digit in binary 1234567[8] = 0xF
 byte disc_l              = 0;
 byte disc_h              = 0;
 byte adresses[]          = {5, 11, 17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 85, 91, 97 }; // Defines start addresses of channel data stored in EEPROM 4bytes s/n.
@@ -822,7 +821,7 @@ void cmd_up(int channel) {
   button = 0x8;
   disc_l = disc_low[channel];
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   rx_disc_low[0]  = disc_l;
   rx_disc_high[0] = disc_h;
   keygen();
@@ -848,7 +847,7 @@ void cmd_down(int channel) {
   button = 0x2;
   disc_l = disc_low[channel];
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   rx_disc_low[0]  = disc_l;
   rx_disc_high[0] = disc_h;
   keygen();
@@ -874,7 +873,7 @@ void cmd_stop(int channel) {
   button = 0x4;
   disc_l = disc_low[channel];
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   rx_disc_low[0]  = disc_l;
   rx_disc_high[0] = disc_h;
   keygen();
@@ -900,7 +899,7 @@ void cmd_shade(int channel) {
   button = 0x4;
   disc_l = disc_low[channel];
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   rx_disc_low[0]  = disc_l;
   rx_disc_high[0] = disc_h;
   keygen();
@@ -926,7 +925,7 @@ void cmd_set_shade_position(int channel) {
   button = 0x4;
   disc_l = disc_low[channel];
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   rx_disc_low[0]  = disc_l;
   rx_disc_high[0] = disc_h;
   keygen();
@@ -963,7 +962,7 @@ void cmd_learn(int channel) {
     button = 0x1;                           // Old learn method for receiver before Mfg date 2010.
   disc_l = disc_low[channel] ;
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   keygen();
   keeloq();
   entertx();
@@ -992,7 +991,7 @@ void cmd_updown(int channel) {
   button = 0xA;
   disc_l = disc_low[channel] ;
   disc_h = disc_high[channel];
-  disc = (disc_l << 8) | serials[channel];
+  disc = (disc_l << 8) | (new_serial & 0xFF);
   keygen();
   keeloq();
   entertx();
@@ -1027,12 +1026,13 @@ void cmd_save_config() {
     WriteLog("[CFG ] - set and generate new serial, user input: " + config.new_serial, true);
     if ((config.new_serial[0] == '0') && (config.new_serial[1] == 'x')) {
       Serial.println("config.serial is hex");
-      // string serial stores only highest 3 bytes,
-      // add lowest byte with a shift operation for config.serial_number
-      config.serial_number = strtoul(config.new_serial.c_str(), NULL, 16) << 8;
+      // Serial is 28 bits
+      // string serial stores only highest 24 bits,
+      // add lowest 4 bits with a shift operation for config.serial_number
+      config.serial_number = strtoul(config.new_serial.c_str(), NULL, 16) << 4;
       // be safe an convert number back to clean 6-digit hex string
       char serialNumBuffer[11];
-      snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 8));
+      snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 4));
       config.serial = serialNumBuffer;
       Serial.printf("config.serial: %08u = 0x%08x \n", config.serial_number, config.serial_number);
       cmd_generate_serials(config.serial_number);

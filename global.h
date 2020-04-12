@@ -314,16 +314,18 @@ boolean ReadConfig()
   // if necessary, convert decimal to hexadecimal
   if ((config.serial[0] == '0') && (config.serial[1] == 'x')) {
     // config.serial is hex
-    // string serial stores only highest 3 bytes,
+    // Serial is 28 bits
+    // string serial stores only highest 24 bits,
     // add lowest byte with a shift operation for config.serial_number
-    config.serial_number = strtol(config.serial.c_str(), NULL, 16) << 8;
+    config.serial_number = strtol(config.serial.c_str(), NULL, 16) << 4;
   } else {
     // config.serial is NOT hex
     config.serial_number = strtol(config.serial.c_str(), NULL, 10);
-    // string serial stores only highest 3 bytes,
-    // remove lowest byte with a shift operation
+    // Serial is 28 bits.
+    // string serial stores only highest 24 bits,
+    // remove lowest 4 bits with a shift operation
     char serialNumBuffer[11];
-    snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 8));
+    snprintf(serialNumBuffer, 11, "0x%06x", (config.serial_number >> 4));
     config.serial = serialNumBuffer;
     Serial.printf("convert config.serial to hex: %08u = 0x%08x \n", config.serial_number, config.serial_number);
     Serial.println("config.serial: " + config.serial);
