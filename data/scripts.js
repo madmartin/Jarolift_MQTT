@@ -103,6 +103,69 @@ function getChannelName(){
   http.send("cmd=get channel name");
 }
 
+
+function getChannelName_url(){
+  var http = new XMLHttpRequest();
+  http.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+
+      var lines = this.responseText.split('\n');
+      var counter = 0;
+      for (var j = 0; j < lines.length; j++) {
+        var result = lines[j].split('=');
+
+        if (result[0] != ""){
+
+          //get channel Id and get configured status
+          var channel_id = (result[0].split('_'))[1];
+          var configured = true;
+
+          // set alternative display name if channel name is empty
+          if (result[1] == ""){
+            configured = false;
+            result[1] = "Channel " + channel_id;
+          }else{
+            counter++;
+          }
+
+          // create new element
+          var element = document.createElement("div");
+          element.setAttribute("name", "shuttercontrol");
+          // add HTML stuff to the element
+          element.innerHTML = `
+            <table><tr id=` + channel_id + `> <td> Ch-` + channel_id + ` </td> <td data-inlineType="text" data-inlineName="channel_name" style="font-size: 2.3rem;">` + result[1] + `</td><td data-inlineType="doneButton">&nbsp;&nbsp;<a href="javascript:void(0)" class="siimple-link" onclick="inlineEdit('` + channel_id + `', setChannelName)">edit</a></td></tr></table>
+            <div class="siimple-grid-row">
+              <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><a href="?cmd=up&channel_id=` + channel_id  + `"><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" class="siimple-btn siimple-btn--navy">UP</div></a></div>
+              <a href="?cmd=stop&channel_id=` + channel_id  + `"><div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" class="siimple-btn siimple-btn--navy">STOP</div></div></a>
+              <a href="?cmd=down&channel_id=` + channel_id  + `"><div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" class="siimple-btn siimple-btn--navy">DOWN</div></div></a>
+              <a href="?cmd=shade&channel_id=` + channel_id  + `"><div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" class="siimple-btn siimple-btn--navy">SHADE</div></div></a>
+            </div>
+            <br><br>
+          `;
+          // hide element if it is not yet configured
+          if (configured == false){
+            element.style.display = "none";
+          }
+          document.getElementById('container').appendChild(element);
+        }
+      }
+	  // disable learn buttons
+      var els = document.getElementsByName('learnBtn');
+      for (var i=0; i < els.length; i++) {
+        els[i].style.display = "none";
+      }
+      // disable spinner and show all shutter if there is no shutter configured yet.
+      document.getElementById('spinner').style.display = "none";
+      if (counter == 0){
+        showAllShutterChannel();
+      }
+    }
+  };
+  http.open("POST", "api", true);
+  http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  http.send("cmd=get channel name");
+}
+
 function getConfig(){
   var http = new XMLHttpRequest();
   http.onreadystatechange = function() {
