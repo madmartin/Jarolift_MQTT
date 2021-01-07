@@ -5,6 +5,10 @@ function showAllShutterChannel(){
   for (var i=0; i < els.length; i++) {
     els[i].style.display = "block";
   }
+  els = document.getElementsByName('learnBtn');
+  for (var i=0; i < els.length; i++) {
+    els[i].style.display = "inline-block";
+  }
 }
 
 function getEventLog() {
@@ -79,8 +83,8 @@ function getChannelName(){
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('stop', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">STOP</div></div>
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('down', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">DOWN</div></div>
               <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('shade', ` + channel_id  + `)" class="siimple-btn siimple-btn--navy">SHADE</div></div>
-              <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('set shade', ` + channel_id  + `)" class="siimple-btn siimple-btn--grey">SET SHADE</div></div>
-              <div class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('learn', ` + channel_id  + `)" class="siimple-btn siimple-btn--grey">LEARN</div></div>
+              <div name="learnBtn" class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('set shade', ` + channel_id  + `)" class="siimple-btn siimple-btn--grey">SET SHADE</div></div>
+              <div name="learnBtn" class="siimple-grid-col siimple-grid-col--2 siimple-grid-col-sm--12" align=center><div style="width: 100%; padding: 3px; margin-bottom: 2px; margin-top: 2px;" onclick="runShutterCmd('learn', ` + channel_id  + `)" class="siimple-btn siimple-btn--grey">LEARN</div></div>
             </div>
             <br><br>
           `;
@@ -90,6 +94,11 @@ function getChannelName(){
           }
           document.getElementById('container').appendChild(element);
         }
+      }
+      // disable learn buttons
+      var els = document.getElementsByName('learnBtn');
+      for (var i=0; i < els.length; i++) {
+        els[i].style.display = "none";
       }
       // disable spinner and show all shutter if there is no shutter configured yet.
       document.getElementById('spinner').style.display = "none";
