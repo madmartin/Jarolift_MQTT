@@ -137,6 +137,10 @@ function writeConfig(cmd){
 	var elements = document.getElementById("configForm").elements;
 	var params = "";
 	for (var i = 0, element; element = elements[i++];) {
+		var pattern= /assword/;
+		if (pattern.test(element.name)) {
+			element.value= encodeURIComponent(element.value);
+	    }
 		if (element.type == "checkbox"){
 			if (element.checked == true){
 				params += element.name + "=true&"
@@ -156,9 +160,7 @@ function writeConfig(cmd){
 	http.open("POST", "api", true);
 	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	http.send("cmd=" + cmd + "&" + params);
-
 }
-
 
 
 

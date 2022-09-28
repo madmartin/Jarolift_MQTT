@@ -94,6 +94,7 @@ long EEPROMReadlong(long address)
   return ((four << 0) & 0xFF) + ((three << 8) & 0xFFFF) + ((two << 16) & 0xFFFFFF) + ((one << 24) & 0xFFFFFFFF);
 } // long EEPROMReadlong
 
+/*
 //####################################################################
 // convert a single hex digit character to its integer value (from https://code.google.com/p/avr-netino/)
 //####################################################################
@@ -131,5 +132,56 @@ String urldecode(String input) // (based on https://code.google.com/p/avr-netino
   }
   return ret;
 } // String urldecode
+*/
+
+String decodeURIComponent(String sencoded) {
+
+    std::string encoded(sencoded.c_str(), sencoded.length());
+    std::string decoded = encoded;
+    std::smatch sm;
+    std::string haystack;
+
+    int dynamicLength = decoded.size() - 2;
+
+    if (decoded.size() < 3) return decoded.c_str();
+
+    for (int i = 0; i < dynamicLength; i++)
+    {
+
+        haystack = decoded.substr(i, 3);
+
+        if (std::regex_match(haystack, sm, std::regex("%[0-9A-F]{2}")))
+        {
+            haystack = haystack.replace(0, 1, "0x");
+            std::string rc = {(char)std::stoi(haystack, nullptr, 16)};
+            decoded = decoded.replace(decoded.begin() + i, decoded.begin() + i + 3, rc);
+        }
+
+        dynamicLength = decoded.size() - 2;
+
+    }
+    
+    return decoded.c_str();
+}
+
+String encodeURIComponent(String sdecoded) {
+  
+    std::string decoded(sdecoded.c_str(), sdecoded.length());
+    std::ostringstream oss;
+    std::regex r("[!'\\(\\)*-.0-9A-Za-z_~]");
+
+    for (char &c : decoded)
+    {
+        if (std::regex_match((std::string){c}, r))
+        {
+            oss << c;
+        }
+        else
+        {
+            oss << "%" << std::uppercase << std::hex << (0xff & c);
+        }
+    }
+    return oss.str().c_str();
+}
 
 #endif

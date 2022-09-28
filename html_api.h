@@ -28,25 +28,25 @@ void html_api() {
     if (debug_webui) {
       for ( uint8_t i = 0; i < server.args(); i++ ) {
         Serial.printf("server.argName(%d) == %s\n", i, server.argName(i).c_str());
-        Serial.printf(" urldecode: %s\n", urldecode(server.arg(i)).c_str());
+        Serial.printf(" decodeURIComponent: %s\n", decodeURIComponent(server.arg(i)).c_str());
       }
     }
     for ( uint8_t i = 0; i < server.args(); i++ ) {
-      if (server.argName(i) == "cmd") cmd         = urldecode(server.arg(i));
+      if (server.argName(i) == "cmd") cmd         = decodeURIComponent(server.arg(i));
       if (server.argName(i) == "channel") channel = server.arg(i).toInt();
-      if (server.argName(i) == "channel_name") channel_name = urldecode(server.arg(i));
+      if (server.argName(i) == "channel_name") channel_name = decodeURIComponent(server.arg(i));
 
-      if (server.argName(i) == "ssid") config.ssid                           = urldecode(server.arg(i));
-      if (server.argName(i) == "password") config.password                   = urldecode(server.arg(i));
+      if (server.argName(i) == "ssid") config.ssid                           = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "password") config.password                   = decodeURIComponent(server.arg(i));
 
-      if (server.argName(i) == "mqtt_broker_port") config.mqtt_broker_port            = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_broker_client_id") config.mqtt_broker_client_id  = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_broker_username") config.mqtt_broker_username    = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = urldecode(server.arg(i));
-      if (server.argName(i) == "mqtt_devicetopic") config.mqtt_devicetopic_new               = urldecode(server.arg(i));
+      if (server.argName(i) == "mqtt_broker_port") config.mqtt_broker_port            = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "mqtt_broker_client_id") config.mqtt_broker_client_id  = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "mqtt_broker_username") config.mqtt_broker_username    = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "mqtt_broker_password") config.mqtt_broker_password    = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "mqtt_devicetopic") config.mqtt_devicetopic_new               = decodeURIComponent(server.arg(i));
 
-      if (server.argName(i) == "master_msb") config.master_msb = urldecode(server.arg(i));
-      if (server.argName(i) == "master_lsb") config.master_lsb = urldecode(server.arg(i));
+      if (server.argName(i) == "master_msb") config.master_msb = decodeURIComponent(server.arg(i));
+      if (server.argName(i) == "master_lsb") config.master_lsb = decodeURIComponent(server.arg(i));
 
       if (server.argName(i) == "ip_0") if (checkRange(server.arg(i)))   config.ip[0] =  server.arg(i).toInt();
       if (server.argName(i) == "ip_1") if (checkRange(server.arg(i)))   config.ip[1] =  server.arg(i).toInt();
@@ -67,17 +67,17 @@ void html_api() {
       if (server.argName(i) == "mqtt_broker_addr_3") if (checkRange(server.arg(i)))   config.mqtt_broker_addr[3] =  server.arg(i).toInt();
 
       if (server.argName(i) == "dhcp")
-        config.dhcp = (urldecode(server.arg(i)) == "true");
+        config.dhcp = (decodeURIComponent(server.arg(i)) == "true");
       if (server.argName(i) == "learn_mode")
-        config.learn_mode = (urldecode(server.arg(i)) == "true");
+        config.learn_mode = (decodeURIComponent(server.arg(i)) == "true");
       if (server.argName(i) == "set_and_generate_serial")
-        config.set_and_generate_serial = (urldecode(server.arg(i)) == "true");
+        config.set_and_generate_serial = (decodeURIComponent(server.arg(i)) == "true");
       if (server.argName(i) == "serial")
-        config.new_serial = urldecode(server.arg(i));
+        config.new_serial = decodeURIComponent(server.arg(i));
       if (server.argName(i) == "set_devicecounter")
-        config.set_devicecounter = (urldecode(server.arg(i)) == "true");
+        config.set_devicecounter = (decodeURIComponent(server.arg(i)) == "true");
       if (server.argName(i) == "devicecounter")
-        config.new_devicecounter = urldecode(server.arg(i));
+        config.new_devicecounter = decodeURIComponent(server.arg(i));
     } // for
     if (cmd != "") {
       if (cmd == "eventlog") {

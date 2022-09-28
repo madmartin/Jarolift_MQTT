@@ -50,6 +50,9 @@
 #include <DoubleResetDetector.h>
 #include <simpleDSTadjust.h>
 #include <coredecls.h>              // settimeofday_cb()
+#include <regex>
+#include <string>
+#include <sstream>
 
 #include "helpers.h"
 #include "global.h"
