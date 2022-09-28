@@ -145,6 +145,7 @@ void ConfigureWifi()
   WriteLog("[INFO] - WiFi connecting to", false);
   WriteLog(config.ssid, true);
   WiFi.mode(WIFI_STA);
+  //WriteLog("DEBUG:" + config.password.c_str(),true);
   WiFi.begin (config.ssid.c_str(), config.password.c_str());
   if (!config.dhcp)
   {
