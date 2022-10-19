@@ -149,7 +149,7 @@ void ConfigureWifi()
   WiFi.begin (config.ssid.c_str(), config.password.c_str());
   if (!config.dhcp)
   {
-    WiFi.config(IPAddress(config.ip[0], config.ip[1], config.ip[2], config.ip[3] ),  IPAddress(config.gateway[0], config.gateway[1], config.gateway[2], config.gateway[3] ) , IPAddress(config.netmask[0], config.netmask[1], config.netmask[2], config.netmask[3] ));
+    WiFi.config(IPAddress(config.ip[0], config.ip[1], config.ip[2], config.ip[3] ),  IPAddress(8,8,8,8), IPAddress(config.gateway[0], config.gateway[1], config.gateway[2], config.gateway[3] ) , IPAddress(config.netmask[0], config.netmask[1], config.netmask[2], config.netmask[3] ));
   }
   wifi_disconnect_log = true;
 } // void ConfigureWifi
