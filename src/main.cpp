@@ -119,6 +119,36 @@ CC1101 cc1101;                            // The connection to the hardware chip
 // forward declarations
 void ICACHE_RAM_ATTR radio_rx_measure();
 
+void time_is_set(void);
+void updateNTP(void);
+bool handleFileRead(String path);
+void mqtt_callback(char* topic, byte* payload, unsigned int length);
+void entertx(void);
+void enterrx(void);
+void ReadRSSI(void);
+void rx_keygen(void);
+void rx_decoder(void);
+boolean mqtt_connect(void);
+
+void cmd_up(int channel);
+void cmd_down(int channel);
+void cmd_stop(int channel);
+void cmd_shade(int channel);
+void cmd_learn(int channel);
+void cmd_updown(int channel);
+void cmd_save_config(void);
+void cmd_set_shade_position(int channel);
+void cmd_restart(void);
+void cmd_generate_serials(uint32_t sn);
+
+void radio_tx_frame(int l);
+void radio_tx_group_h(void);
+
+
+void mqtt_send_config(void);
+void mqtt_send_config_line(int & counter, String Payload);
+
+
 //####################################################################
 // sketch initialization routine
 //####################################################################
